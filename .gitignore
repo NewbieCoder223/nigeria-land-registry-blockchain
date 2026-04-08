@@ -1,0 +1,40 @@
+# Node
+node_modules/
+dist/
+build/
+.env
+.env.local
+
+# Frontend
+frontend/dist/
+frontend/build.log
+
+# Backend
+backend/venv/
+backend/__pycache__/
+*.pyc
+
+# Contracts
+contracts/cache/
+contracts/artifacts/
+contracts/coverage/
+contracts/coverage.json
+contracts/typechain-types/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Secrets
+keys.json
+.env*
+
+# Python
+venv/
+.venv/
+__pycache__/
+
+# Node
+node_modules/
+dist/
+.npm

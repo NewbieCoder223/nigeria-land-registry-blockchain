@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --primary: 161 94% 30%;
+    --primary-foreground: 161 94% 95%;
+  }
+
+  body {
+    background-color: #0c141f;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.02) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@layer components {
+  .glass-card {
+    background-color: rgba(20, 28, 39, 0.4);
+    backdrop-filter: blur(24px);
+    border-radius: 0.75rem;
+    box-shadow: 0 0 60px rgba(5, 150, 105, 0.04);
+    border: 0.5px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-glass {
+    background-color: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-primary {
+    background: linear-gradient(to bottom right, #059669, #064e3b);
+    color: white;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2);
+  }
+  .btn-primary:hover {
+    transform: scale(1.02);
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .ghost-border {
+    position: relative;
+    border: 0.5px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .ghost-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 0.5px solid rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+  }
+}
