@@ -19,8 +19,12 @@ async function main() {
   console.log("Setting up LandRegistry with Admin:", adminAddress);
   const LandRegistry = await ethers.getContractFactory("LandRegistry");
   
-  // Deploying with constructor arguments (initialDelay, admin)
-  const landRegistry = await LandRegistry.deploy(initialDelay, adminAddress);
+  // Deploying with constructor arguments (initialDelay, admin) + GAS OVERRIDES
+  const landRegistry = await LandRegistry.deploy(initialDelay, adminAddress, {
+    gasLimit: 3150000,
+    maxFeePerGas: ethers.parseUnits('28', 'gwei'),
+    maxPriorityFeePerGas: ethers.parseUnits('25.5', 'gwei')
+  });
   
   await landRegistry.waitForDeployment();
   const contractAddress = await landRegistry.getAddress();

@@ -1,0 +1,40 @@
+services:
+  # 1. Flask API Web Service
+  - type: web
+    name: sovereign-ledger-api
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend app:app
+    envVars:
+      - key: SUPABASE_URL
+        fromConfig: SUPABASE_URL
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        fromConfig: SUPABASE_SERVICE_ROLE_KEY
+      - key: SECRET_KEY
+        fromConfig: SECRET_KEY
+      - key: POLYGON_AMOY_RPC_URL
+        fromConfig: POLYGON_AMOY_RPC_URL
+      - key: LAND_REGISTRY_ADDRESS
+        fromConfig: LAND_REGISTRY_ADDRESS
+      - key: PINATA_API_KEY
+        fromConfig: PINATA_API_KEY
+      - key: PINATA_API_SECRET
+        fromConfig: PINATA_API_SECRET
+      - key: NIN_PROVIDER
+        value: mock
+
+  # 2. Blockchain Indexer (Sync)
+  - type: worker
+    name: sovereign-ledger-sync
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python backend/sync.py
+    envVars:
+      - key: SUPABASE_URL
+        fromConfig: SUPABASE_URL
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        fromConfig: SUPABASE_SERVICE_ROLE_KEY
+      - key: POLYGON_AMOY_RPC_URL
+        fromConfig: POLYGON_AMOY_RPC_URL
+      - key: LAND_REGISTRY_ADDRESS
+        fromConfig: LAND_REGISTRY_ADDRESS

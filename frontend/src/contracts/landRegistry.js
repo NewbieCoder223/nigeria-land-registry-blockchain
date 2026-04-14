@@ -3,7 +3,7 @@
  * This file contains the ABI and address for the LandRegistry smart contract.
  */
 
-export const LAND_REGISTRY_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'; // Local Hardhat Default (Update for Amoy)
+export const LAND_REGISTRY_ADDRESS = '0xd5588e12b24c74Cd35Eab58609C3C9B66762797a'; // Polygon Amoy Testnet Deployment
 
 export const LAND_REGISTRY_ABI = [
   {
