@@ -235,7 +235,7 @@ function App() {
         </main>
 
         <footer className="h-16 border-t border-white/5 flex items-center justify-between px-8 text-[10px] text-white/20 uppercase tracking-widest bg-reg-black/20">
-          <p className="hidden md:block">© 2026 African University of Science & Technology (AUST)</p>
+          <p className="hidden md:block">© 2026 Oseikhuemen Osereme</p>
           <div className="flex gap-6 mx-auto md:mx-0">
             <a href="#" className="hover:text-white transition-colors flex items-center gap-1.5">
               Legal <ExternalLink className="w-2.5 h-2.5" />

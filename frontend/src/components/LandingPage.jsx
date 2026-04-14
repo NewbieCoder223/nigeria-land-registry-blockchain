@@ -228,12 +228,19 @@ const RoleCard = ({ title, role, icon: Icon, isRestricted, details }) => (
         ))}
      </ul>
 
-     <button className={`w-full py-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
-        isRestricted 
-           ? 'border-rose-500/20 text-rose-500/40 hover:bg-rose-500/10' 
-           : 'border-nigeria-green/20 text-nigeria-green hover:bg-nigeria-green hover:text-white'
-     }`}>
-        {isRestricted ? 'Administrative Auth Required' : 'Establish Access'}
-     </button>
+     <ConnectButton.Custom>
+       {({ openConnectModal }) => (
+         <button 
+           onClick={openConnectModal}
+           className={`w-full py-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+             isRestricted 
+               ? 'border-rose-500/20 text-rose-500/40 hover:bg-rose-500/10' 
+               : 'border-nigeria-green/20 text-nigeria-green hover:bg-nigeria-green hover:text-white'
+           }`}
+         >
+            {isRestricted ? 'Administrative Auth Required' : 'Establish Access'}
+         </button>
+       )}
+     </ConnectButton.Custom>
   </div>
 );
