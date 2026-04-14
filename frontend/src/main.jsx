@@ -21,7 +21,7 @@ import './index.css'
 // 🛡️ Note: "Buffer" and "process" are now injected by "vite-plugin-node-polyfills" 
 // throughout the build pipeline. No manual shimming required here.
 
-const PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID;
+const PROJECT_ID = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || 'e19f393653ec729821aeba6d5395f9e3';
 
 // Debug log to verify .env loading (masked for security)
 if (PROJECT_ID) {
