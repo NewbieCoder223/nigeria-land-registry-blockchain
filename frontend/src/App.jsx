@@ -64,7 +64,6 @@ const SUPER_ADMIN = '0x765357ab691d7f6EE1afd432E9Db93B89F53D21D';
 
 function App() {
   const { isConnected, address } = useAccount()
-  const [isPreviewing, setIsPreviewing] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [role, setRole] = useState(() => localStorage.getItem('user_role') || 'LANDOWNER')
   const [toast, setToast] = useState(null)
@@ -80,7 +79,7 @@ function App() {
   }, [location.pathname]);
 
   const isSuperAdmin = useMemo(() => address?.toLowerCase() === SUPER_ADMIN.toLowerCase(), [address]);
-  const showApp = isConnected || isPreviewing
+  const showApp = isConnected
 
   // 🛡️ Supabase Profile Sync
   useEffect(() => {
@@ -144,8 +143,6 @@ function App() {
             role={role}
             setRole={setRole}
             isSuperAdmin={isSuperAdmin}
-            isPreviewing={isPreviewing} 
-            onExitPreview={() => setIsPreviewing(false)} 
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           />
@@ -186,12 +183,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-3 md:gap-4">
-            {isPreviewing && (
-                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold tracking-widest uppercase animate-pulse">
-                  <Zap className="w-3 h-3" />
-                  Preview Mode
-                </div>
-            )}
             {isSuperAdmin && (
                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-nigeria-green/10 border border-nigeria-green/20 text-nigeria-green text-[10px] font-black tracking-widest uppercase italic">
                  <ShieldVerified className="w-3.5 h-3.5" />
@@ -208,11 +199,11 @@ function App() {
             <Routes location={location} key={location.pathname}>
               <Route 
                 path="/" 
-                element={!showApp ? <LandingPage onPreview={() => setIsPreviewing(true)} /> : <Navigate to="/dashboard" />} 
+                element={!showApp ? <LandingPage /> : <Navigate to="/dashboard" />} 
               />
               
               {/* Restricted Guest/Role View */}
-              {(isPreviewing && isTargetingRestricted) || (isConnected && isTargetingRestricted && !isSuperAdmin && role === 'LANDOWNER') ? (
+              {(isConnected && isTargetingRestricted && !isSuperAdmin && role === 'LANDOWNER') ? (
                 <Route path="*" element={<RestrictedView />} />
               ) : (
                 <>
@@ -306,7 +297,7 @@ const RestrictedView = () => (
   </motion.div>
 );
 
-const Sidebar = ({ role, setRole, isSuperAdmin, isPreviewing, onExitPreview, isOpen, onClose }) => {
+const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
   const location = useLocation()
 
   const getMenuItems = (userRole) => {
@@ -418,16 +409,6 @@ const Sidebar = ({ role, setRole, isSuperAdmin, isPreviewing, onExitPreview, isO
       </nav>
 
       <div className="p-6 mt-auto">
-        {isPreviewing && (
-          <button 
-            onClick={onExitPreview}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] font-bold tracking-widest uppercase hover:bg-red-500 hover:text-white transition-all duration-300 mb-4"
-          >
-            <LogOut className="w-3 h-3" />
-            Exit Preview
-          </button>
-        )}
-        
         <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 group">
           <p className="text-[10px] font-bold text-nigeria-green tracking-widest uppercase mb-1 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-nigeria-green animate-pulse" />

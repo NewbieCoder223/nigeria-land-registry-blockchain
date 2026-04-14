@@ -20,7 +20,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { InteractiveGlobe } from './Map/InteractiveGlobe';
 import { SovereignLogo } from './SovereignLogo';
 
-export const LandingPage = ({ onPreview }) => {
+export const LandingPage = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
 
@@ -97,14 +97,6 @@ export const LandingPage = ({ onPreview }) => {
                  </button>
                )}
             </ConnectButton.Custom>
-
-            <button 
-              onClick={onPreview}
-              className="group px-12 py-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-2xl font-black italic uppercase tracking-widest text-sm transition-all flex items-center gap-3 active:scale-95"
-            >
-              Explore National Desk
-              <Eye className="w-4 h-4 group-hover:text-nigeria-green transition-colors" />
-            </button>
           </motion.div>
         </motion.div>
       </section>
