@@ -31,10 +31,10 @@ if (PROJECT_ID) {
 }
 
 const config = getDefaultConfig({
-  appName: 'Nigeria Blockchain Land Registry',
+  appName: 'Sovereign Ledger',
   appDescription: 'Sovereign Ledger — Secure. Immutable. National.',
   appUrl: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
-  appIcon: 'https://img.icons8.com/?size=100&id=17923&format=png&color=000000', // Nigeria Flag Icon
+  appIcon: 'https://img.icons8.com/3d-fluency/100/shield.png', // Premium Security Shield Icon
   projectId: PROJECT_ID,
   chains: [polygonAmoy],
   transports: {
