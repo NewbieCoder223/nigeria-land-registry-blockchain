@@ -111,21 +111,46 @@ def handle_dispute_resolved(event):
     supabase.table("parcels").update({"status": new_status}).eq("parcel_id", args['parcelId']).execute()
     print(f"[Sync] DisputeResolved — ID: {args['parcelId']}, Status: {new_status}")
 
+def get_last_block():
+    """Retrieve the last processed block from Supabase."""
+    try:
+        res = supabase.table("sync_state").select("last_processed_block").eq("id", 1).single().execute()
+        if res.data:
+            return int(res.data['last_processed_block'])
+    except Exception as e:
+        print(f"[Sync] Warning: Could not fetch last block: {e}")
+    return 0
+
+def update_last_block(block_number):
+    """Update the last processed block in Supabase."""
+    try:
+        supabase.table("sync_state").update({"last_processed_block": block_number, "updated_at": "now()"}).eq("id", 1).execute()
+    except Exception as e:
+        print(f"[Sync] Error updating block state: {e}")
+
 def log_loop(poll_interval: int = 2):
-    print("[Sync] Starting Sovereign Indexer — Full Lifecycle Mode...")
+    print("[Sync] Initializing Sovereign Indexer...")
     if not w3.is_connected():
         print("[Sync] ERROR: No RPC connection")
         return
 
-    # Using manual block polling to avoid some filter limitations on certain nodes
-    last_processed_block = w3.eth.block_number
+    # Use persistent state
+    last_processed_block = get_last_block()
+    run_once = os.getenv("RUN_ONCE", "false").lower() == "true"
+    
+    print(f"[Sync] Starting from block: {last_processed_block} (Mode: {'Single-Run' if run_once else 'Continuous'})")
     
     while True:
         try:
             current_block = w3.eth.block_number
             if current_block > last_processed_block:
-                for block_num in range(last_processed_block + 1, current_block + 1):
-                    # ADVERSARIAL FIX: Pull all events and process in true chronological sequence
+                # Process blocks in chunks of 1000 to avoid node overload
+                start_block = last_processed_block + 1
+                end_block = min(current_block, start_block + 1000)
+                
+                print(f"[Sync] Processing range: {start_block} to {end_block}...")
+                
+                for block_num in range(start_block, end_block + 1):
                     all_logs = []
                     all_logs.extend(contract.events.LandRegistered().get_logs(fromBlock=block_num, toBlock=block_num))
                     all_logs.extend(contract.events.TransferInitiated().get_logs(fromBlock=block_num, toBlock=block_num))
@@ -134,7 +159,6 @@ def log_loop(poll_interval: int = 2):
                     all_logs.extend(contract.events.DisputeFiled().get_logs(fromBlock=block_num, toBlock=block_num))
                     all_logs.extend(contract.events.DisputeResolved().get_logs(fromBlock=block_num, toBlock=block_num))
 
-                    # Sort strictly by log transaction/index to prevent race conditions within the same block
                     all_logs.sort(key=lambda e: (e['blockNumber'], e['logIndex']))
 
                     for e in all_logs:
@@ -145,10 +169,24 @@ def log_loop(poll_interval: int = 2):
                         elif e.event == 'DisputeFiled': handle_dispute_filed(e)
                         elif e.event == 'DisputeResolved': handle_dispute_resolved(e)
 
-                last_processed_block = current_block
+                last_processed_block = end_block
+                update_last_block(last_processed_block)
+            
+            if run_once and last_processed_block >= current_block:
+                print("[Sync] Run complete. Exiting.")
+                break
+                
         except Exception as e:
             print(f"[Sync] Error: {e}")
-        time.sleep(poll_interval)
+            if run_once: break
+            
+        if not run_once:
+            time.sleep(poll_interval)
+        else:
+            # If we processed a chunk but more blocks remain, continue immediately
+            if last_processed_block < current_block:
+                continue
+            break
 
 if __name__ == '__main__':
     log_loop(2)

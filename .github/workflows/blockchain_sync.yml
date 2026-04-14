@@ -1,0 +1,33 @@
+name: Blockchain Event Sync
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Run every 30 minutes
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install web3 supabase requests python-dotenv
+
+      - name: Run Sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          POLYGON_AMOY_RPC_URL: ${{ secrets.POLYGON_AMOY_RPC_URL }}
+          LAND_REGISTRY_ADDRESS: ${{ secrets.LAND_REGISTRY_ADDRESS }}
+          RUN_ONCE: "true"
+          PYTHONPATH: .
+        run: python backend/sync.py

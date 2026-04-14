@@ -1,5 +1,5 @@
 services:
-  # 1. Flask API Web Service
+  # 1. Flask API Web Service (Free Tier)
   - type: web
     name: sovereign-ledger-api
     env: python
@@ -22,19 +22,3 @@ services:
         sync: false
       - key: NIN_PROVIDER
         value: mock
-
-  # 2. Blockchain Indexer (Sync)
-  - type: worker
-    name: sovereign-ledger-sync
-    env: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: python backend/sync.py
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: POLYGON_AMOY_RPC_URL
-        sync: false
-      - key: LAND_REGISTRY_ADDRESS
-        sync: false
