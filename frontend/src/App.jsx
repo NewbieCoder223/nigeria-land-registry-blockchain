@@ -357,7 +357,7 @@ const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
       </div>
 
       <div className="px-8 mb-6">
-        {(!isPreviewing && !isSuperAdmin) ? (
+        {(!isSuperAdmin) ? (
           <div className="flex flex-col gap-1">
              <span className={`text-[11px] font-black italic tracking-widest uppercase ${role !== 'LANDOWNER' ? 'text-rose-500' : 'text-nigeria-green'}`}>
                {role.replace('_', ' ')}
