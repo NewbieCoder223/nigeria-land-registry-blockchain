@@ -55,8 +55,7 @@ import DebugOverlay from './components/DebugOverlay'
 // Import Landing Page Component
 import { LandingPage } from './components/LandingPage'
 
-// Import Supabase
-import { supabase } from './lib/supabase'
+import { SovereignLogo } from './components/SovereignLogo'
 
 // 🛡️ Sovereign Identity Registry
 const SUPER_ADMIN = '0x765357ab691d7f6EE1afd432E9Db93B89F53D21D';
@@ -176,9 +175,7 @@ function App() {
               </button>
             )}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-nigeria-green to-emerald-800 rounded-xl flex items-center justify-center shadow-lg shadow-nigeria-green/20 border border-white/10 group-hover:scale-105 transition-all duration-500">
-                <span className="text-xl text-white">🇳🇬</span>
-              </div>
+              <SovereignLogo className="w-10 h-10" />
               <div className="hidden sm:block">
                 <h1 className="text-lg font-black tracking-tight leading-none group-hover:text-nigeria-green transition-colors duration-500 uppercase">SOVEREIGN <span className="text-nigeria-green">Ledger</span></h1>
                 <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase mt-1">Federal Republic of Nigeria</p>

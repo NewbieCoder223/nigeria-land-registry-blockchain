@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { InteractiveGlobe } from './Map/InteractiveGlobe';
+import { SovereignLogo } from './SovereignLogo';
 
 export const LandingPage = ({ onPreview }) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
