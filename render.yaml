@@ -7,19 +7,19 @@ services:
     startCommand: gunicorn --chdir backend app:app
     envVars:
       - key: SUPABASE_URL
-        fromConfig: SUPABASE_URL
+        sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
-        fromConfig: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: SECRET_KEY
-        fromConfig: SECRET_KEY
+        sync: false
       - key: POLYGON_AMOY_RPC_URL
-        fromConfig: POLYGON_AMOY_RPC_URL
+        sync: false
       - key: LAND_REGISTRY_ADDRESS
-        fromConfig: LAND_REGISTRY_ADDRESS
+        sync: false
       - key: PINATA_API_KEY
-        fromConfig: PINATA_API_KEY
+        sync: false
       - key: PINATA_API_SECRET
-        fromConfig: PINATA_API_SECRET
+        sync: false
       - key: NIN_PROVIDER
         value: mock
 
@@ -31,10 +31,10 @@ services:
     startCommand: python backend/sync.py
     envVars:
       - key: SUPABASE_URL
-        fromConfig: SUPABASE_URL
+        sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
-        fromConfig: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: POLYGON_AMOY_RPC_URL
-        fromConfig: POLYGON_AMOY_RPC_URL
+        sync: false
       - key: LAND_REGISTRY_ADDRESS
-        fromConfig: LAND_REGISTRY_ADDRESS
+        sync: false
