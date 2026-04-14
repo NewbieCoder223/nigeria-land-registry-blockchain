@@ -58,6 +58,8 @@ import { LandingPage } from './components/LandingPage'
 import { SovereignLogo } from './components/SovereignLogo'
 
 // 🛡️ Sovereign Identity Registry
+import { supabase } from './lib/supabase';
+
 const SUPER_ADMIN = '0x765357ab691d7f6EE1afd432E9Db93B89F53D21D';
 
 function App() {

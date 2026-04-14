@@ -6,35 +6,44 @@ export const InteractiveGlobe = ({ className }) => {
 
   useEffect(() => {
     let phi = 0;
+    let globe = null;
 
-    const globe = createGlobe(canvasRef.current, {
-      devicePixelRatio: 2,
-      width: 600 * 2,
-      height: 600 * 2,
-      phi: 0,
-      theta: 0.4, // Slight tilt for better view of Nigeria
-      dark: 1,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.047, 0.078, 0.121], // #0c141f
-      markerColor: [0.2, 0.8, 0.5], // Emerald marker
-      glowColor: [0.02, 0.588, 0.412],
-      markers: [
-        // Nigeria Coordinates (Lat,Lon)
-        { location: [9.0820, 7.4913], size: 0.1 }, // Abuja (Capital)
-        { location: [6.5244, 3.3792], size: 0.08 }, // Lagos
-        { location: [12.0022, 8.5920], size: 0.06 }, // Kano
-        { location: [4.8156, 7.0498], size: 0.06 }, // Port Harcourt
-      ],
-      onRender: (state) => {
-        state.phi = phi;
-        phi += 0.005;
-      },
-    });
+    if (!canvasRef.current) return;
+
+    try {
+      globe = createGlobe(canvasRef.current, {
+        devicePixelRatio: 2,
+        width: 600 * 2,
+        height: 600 * 2,
+        phi: 0,
+        theta: 0.4, // Slight tilt for better view of Nigeria
+        dark: 1,
+        diffuse: 1.2,
+        mapSamples: 16000,
+        mapBrightness: 6,
+        baseColor: [0.047, 0.078, 0.121], // #0c141f
+        markerColor: [0.2, 0.8, 0.5], // Emerald marker
+        glowColor: [0.02, 0.588, 0.412],
+        markers: [
+          // Nigeria Coordinates (Lat,Lon)
+          { location: [9.0820, 7.4913], size: 0.1 }, // Abuja (Capital)
+          { location: [6.5244, 3.3792], size: 0.08 }, // Lagos
+          { location: [12.0022, 8.5920], size: 0.06 }, // Kano
+          { location: [4.8156, 7.0498], size: 0.06 }, // Port Harcourt
+        ],
+        onRender: (state) => {
+          state.phi = phi;
+          phi += 0.005;
+        },
+      });
+    } catch (e) {
+      console.warn("Interactive Globe failed to initialize (WebGL issue):", e);
+    }
 
     return () => {
-      globe.destroy();
+      if (globe) {
+        globe.destroy();
+      }
     };
   }, []);
 
