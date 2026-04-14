@@ -1,0 +1,6 @@
+flask==3.0.2
+web3==6.15.1
+requests==2.31.0
+flask-cors==4.0.0
+supabase==2.9.1
+python-jose==3.3.0
