@@ -19,7 +19,11 @@ class ParcelStatus(enum.Enum):
 
 def load_abi():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    abi_path = os.path.join(script_dir, '..', 'contracts', 'artifacts', 'contracts', 'LandRegistry.sol', 'LandRegistry.json')
+    # Primary: committed ABI inside backend/abi/ — always present in git checkout
+    primary_path = os.path.join(script_dir, 'abi', 'LandRegistry.json')
+    # Fallback: Hardhat artifact path for local development
+    fallback_path = os.path.join(script_dir, '..', 'contracts', 'artifacts', 'contracts', 'LandRegistry.sol', 'LandRegistry.json')
+    abi_path = primary_path if os.path.exists(primary_path) else fallback_path
     with open(abi_path, 'r') as f:
         return json.load(f)['abi']
 
