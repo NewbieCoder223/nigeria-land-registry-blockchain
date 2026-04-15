@@ -17,6 +17,10 @@ backend/__pycache__/
 # Contracts
 contracts/cache/
 contracts/artifacts/
+# Un-ignore the compiled ABI so it is always available in CI
+!contracts/artifacts/contracts/
+!contracts/artifacts/contracts/LandRegistry.sol/
+!contracts/artifacts/contracts/LandRegistry.sol/LandRegistry.json
 contracts/coverage/
 contracts/coverage.json
 contracts/typechain-types/
