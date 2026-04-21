@@ -8,16 +8,13 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
 url: str = os.environ.get("SUPABASE_URL", "")
 key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 
-if not url:
-    url = "https://mock.supabase.co"
-if not key:
-    key = "dummy.JWT.key123"
+if not url or not key:
+    raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be provided via environment variables.")
 
 try:
     supabase: Client = create_client(url, key)
 except Exception as e:
-    # Fallback to dummy for tests so collection doesn't fail
-    supabase: Client = create_client("https://mock.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY2siLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjYxNjAwMCwiZXhwIjoxOTE2NjE2MDAwfQ.mock_signature_to_be_replaced_with_thirty_two_chars")
+    raise ValueError(f"Failed to initialize Supabase client. Error: {e}")
 
 def get_supabase_client() -> Client:
     """Returns an authenticated Supabase client for backend operations."""
