@@ -1,4 +1,4 @@
-﻿---
+---
 
 # DESIGN AND IMPLEMENTATION OF A BLOCKCHAIN-BASED LAND OWNERSHIP VERIFICATION SYSTEM FOR NIGERIA
 
@@ -178,6 +178,7 @@ I would like to express my sincere gratitude to Dr Obi, my project supervisor, f
 
 | Table | Title | Page |
 |---|---|---|
+| Table 1.1 | Real-World Implementation Pathway | 13 |
 | Table 2.1 | Blockchain Properties Relevant to Land Registry | 20 |
 | Table 2.2 | Comparison of Blockchain Network Types | 22 |
 | Table 2.3 | When Blockchain Is and Is Not Justified | 23 |
@@ -199,6 +200,7 @@ I would like to express my sincere gratitude to Dr Obi, my project supervisor, f
 | Table 3.9 | Smart Contract Event Emissions | 67 |
 | Table 3.10 | STRIDE Threat Model | 72 |
 | Table 3.11 | FYP Implementation Roadmap | 77 |
+| Table 3.12 | Prototype Technology Stack Summary | 78 |
 
 ---
 
@@ -258,8 +260,6 @@ I would like to express my sincere gratitude to Dr Obi, my project supervisor, f
 | UUPS | Universal Upgradeable Proxy Standard |
 
 ---
-
-
 
 ---
 
@@ -391,6 +391,8 @@ This project makes substantive contributions across four dimensions:
 
 The prototype is designed with a phased real-world deployment model in mind. Were the system to move beyond the academic context, the following three-phase pathway represents a viable approach:
 
+Table 1.1: Real-World Implementation Pathway
+
 | Phase | Duration | Key Activities |
 |---|---|---|
 | Phase 1: Digitisation | 6 months | Partner with one Local Government Area. Digitise all existing paper records. Build a GIS spatial database. Train registry staff on digital workflows. |
@@ -413,8 +415,6 @@ This project report is organised into five chapters following the AUST format:
 - **Chapter Four (Implementation):** Details the development environment and tools, the step-by-step implementation of each system module, the testing methodology, and the evaluation results including performance metrics and usability assessment.
 
 - **Chapter Five (Conclusion and Recommendations):** Summarises the findings of the project, evaluates the achievement of each stated objective, discusses the limitations encountered, and proposes directions for future development and research.
-
-
 
 ---
 
@@ -456,6 +456,8 @@ Blockchain is a distributed ledger technology (DLT) in which transactions are re
 
 The properties most directly relevant to land registry design are as follows:
 
+Table 2.1: Blockchain Properties Relevant to Land Registry
+
 | Property | definition | Application to Land Registry |
 |---|---|---|
 | **Immutability** | Once a block is confirmed by consensus and appended to the chain, its contents cannot be altered without invalidating every subsequent block and requiring agreement from a majority of the network | Land ownership records written to the chain cannot be retroactively modified, eliminating the most common mechanism for title fraud |
@@ -474,6 +476,19 @@ The choice of blockchain network type is one of the most consequential architect
 
 **Consortium or permissioned blockchains** occupy a middle ground in which a pre-selected group of organisations — for a land registry application, this might include the government land bureau, licensed survey agencies, and authorised banks — jointly operate and validate the network. This model is increasingly recommended for land administration precisely because it balances the transparency and immutability benefits of public blockchain with the privacy and performance requirements of institutional data management (Ansah et al., 2023). Polygon, the Layer 2 network selected for this project, provides a practical route to this model: its Solidity-compatible smart contracts, negligible transaction costs, and high throughput make it suitable for prototype development, while its architecture supports a migration path to a fully permissioned consortium model for production deployment.
 
+The key trade-offs between public, private, and consortium blockchains are summarized below:
+
+Table 2.2: Comparison of Blockchain Network Types
+
+| Blockchain Type | Public Blockchains | Private Blockchains | Consortium / Permissioned |
+|---|---|---|---|
+| **Access Control** | Open to anyone (permissionless) | Single organization (fully private) | Pre-selected group (permissioned) |
+| **Transaction Cost** | High (fluctuates with congestion) | Near zero | Negligible / very low |
+| **Throughput** | Low (~15-30 TPS) | Very high (2,000+ TPS) | High (~7,000 TPS on Layer 2) |
+| **Smart Contracts** | Supported (Solidity) | Supported (Go, Java) | Supported (Solidity/EVM-compatible) |
+| **Privacy** | Low (all transactions public) | High (restricted channels) | Moderate (ZK-proofs available) |
+| **Example Platform** | Ethereum Mainnet | Hyperledger Fabric | Polygon Amoy testnet (Selected) |
+
 ### 2.2.3 Critical Assessment: When Blockchain Is and Is Not Justified
 
 A critical question must be addressed directly before proceeding further. Is blockchain genuinely necessary for a Nigerian land registry application, or would a well-designed centralised database with role-based access control and a comprehensive audit log achieve equivalent outcomes at lower cost and complexity?
@@ -483,6 +498,8 @@ The weight of the evidence supports blockchain as justified specifically for thi
 In Nigeria's land administration system, all three conditions are demonstrably met. The stakeholders in any land transaction — government officials, private landowners, licensed surveyors, banks providing mortgages, and legal practitioners — are parties with potentially conflicting interests and no pre-existing shared source of truth. Institutional trust in land registries, as documented by Salawu (2025) and Transparency International (2025), is critically low. And Babalola and Hull (2019) have shown empirically that centralised registries are systematically manipulated. In this environment, a centralised digital database would simply digitalise the corruption rather than structurally constrain it.
 
 However, not every component of the system benefits from blockchain. The following table identifies sub-components of the overall system where centralised approaches are more appropriate:
+
+Table 2.3: When Blockchain Is and Is Not Justified
 
 | Scenario | More Appropriate Alternative |
 |---|---|
@@ -500,6 +517,8 @@ This project's position is explicit: blockchain provides one layer — the immut
 ### 2.3.1 Global Case Studies
 
 The most significant global experiments with blockchain-based land registration are synthesised in the following table, drawing on Ansah et al. (2023), Shang and Price (2019), and supplementary sources:
+
+Table 2.4: Global Blockchain Land Registry Case Studies
 
 | Country | Year | Platform | Current Status | Key Outcome | Key Lesson |
 |---|---|---|---|---|---|
@@ -528,6 +547,8 @@ Three conclusions from the global case study literature directly inform the desi
 ### 2.4.1 The Land Use Act 1978: Implications for Smart Contract Design
 
 Every design decision in a blockchain land registry for Nigeria must be evaluated against the Land Use Act of 1978, because the Act is the constitutional superior of any technical system that operates within Nigerian law. The following table maps the Act's most consequential provisions to corresponding design requirements in the SecureLand Registry system:
+
+Table 2.5: Land Use Act Provisions vs. Smart Contract Design Responses
 
 | Act Provision | Implication for Blockchain Design | Design Response in SLR |
 |---|---|---|
@@ -566,6 +587,8 @@ For land registry applications, smart contracts most commonly follow either the 
 ### 2.5.2 Smart Contract Security Vulnerabilities
 
 Atzei et al. (2017) conducted a foundational survey of attack classes against Ethereum smart contracts, establishing a taxonomy that remains the standard reference for smart contract security analysis. The vulnerabilities most relevant to a land registry contract are:
+
+Table 2.6: Smart Contract Vulnerability Classes and Mitigations
 
 | Vulnerability Class | Description | Mitigation Strategy |
 |---|---|---|
@@ -609,6 +632,7 @@ This project is grounded in two complementary theoretical frameworks, each of wh
 The conceptual framework below illustrates how the system's components interact to achieve the project's objectives. The five-layer architecture — from user-facing presentation through to the blockchain and external integrations — reflects the design principle that blockchain operates as the trust layer within a broader system, not as the entire system.
 
 ```
+# Figure 2.1: Five-Layer System Architecture Conceptual Framework
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       LAYER 1: PRESENTATION                          │
 │   Web Application (Progressive Web App) │ USSD Gateway (feature     │
@@ -660,6 +684,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.1 Functional Gaps in Existing Blockchain Land Registry Prototypes
 
+Table 2.7: Functional Gaps in Existing Blockchain Land Registry Prototypes
+
 | Gap | Severity | Required State |
 |---|---|---|
 | GIS and land mapping integration | Critical | Spatial coordinates and boundary definitions are required to prevent boundary fraud — the registration of the same physical parcel under slightly different GPS coordinates |
@@ -671,6 +697,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.2 Technical Gaps
 
+Table 2.8: Technical Gaps in Existing Prototypes
+
 | Gap | Specific Problem |
 |---|---|
 | Blockchain platform selection unjustified | Projects that reference Ethereum and Hyperledger Fabric without comparative analysis or a decision rationale are architecturally undefined; the choice must be explicitly justified |
@@ -680,6 +708,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.3 Legal Gaps
 
+Table 2.9: Legal Gaps in Existing Prototypes
+
 | Gap | Impact |
 |---|---|
 | Land Use Act provisions not reflected in technical design | The Act's gubernatorial consent requirement fundamentally constrains all transfer logic; a system that ignores this produces transfers that are technically valid on-chain but legally void in Nigeria |
@@ -687,6 +717,8 @@ The following gaps were identified both in the existing academic literature and 
 | Dual tenure system ignored | Nigeria's customary land tenure system represents the majority of rural landholdings; omitting it produces a system that is legally incomplete for most of the country |
 
 ### 2.9.4 Socio-Political Gaps
+
+Table 2.10: Socio-Political Gaps in Existing Prototypes
 
 | Gap | Reality |
 |---|---|
@@ -715,8 +747,6 @@ This project addresses this compound gap by delivering a functional prototype th
 
 This chapter reviewed the current state of land administration in Nigeria, establishing both the historical origins and the contemporary consequences of the Land Use Act's centralised, bureaucracy-driven model. It examined blockchain technology's core properties and critically assessed the conditions under which the technology genuinely adds value over centralised alternatives — concluding that Nigeria's land administration context meets those conditions, but only as a verification and audit layer within a broader reform programme. Global case studies were synthesised to extract the key lessons of both success (Georgia, Sweden) and failure (Honduras, Bitland), with direct implications drawn for the design of this project. A legal and regulatory analysis mapped the Land Use Act's provisions to specific smart contract design requirements and identified the legislative changes that would be necessary for a production deployment. The smart contract security landscape was reviewed with reference to the foundational work of Atzei et al. (2017), and the hybrid storage model using IPFS and PostgreSQL was justified. The chapter concluded with a structured gap analysis identifying the functional, technical, legal, and socio-political gaps in existing literature and implementations that this project is designed to address. These gaps, taken together, constitute the research gap that the SecureLand Registry prototype fills. Chapter Three presents the system design that responds to this gap.
 
-
-
 ---
 
 # CHAPTER THREE: ANALYSIS AND DESIGN
@@ -734,6 +764,8 @@ The design throughout this chapter is governed by three principles derived from 
 
 The following table defines the functional requirements of the SLR system. Each requirement is assigned a unique identifier, a priority level (High, Medium, or Low), and a description sufficient for implementation.
 
+Table 3.1: Functional Requirements
+
 | ID | Requirement | Description | Priority |
 |---|---|---|---|
 | FR01 | User Registration and Authentication | Stakeholders register with a unique identifier — a simulated NIN hash — and receive a role assignment. JWT-based session management governs all subsequent access. | High |
@@ -748,6 +780,8 @@ The following table defines the functional requirements of the SLR system. Each 
 | FR10 | Notification | Email and SMS notifications are generated for ownership changes, dispute filings, and transfer approvals. These are simulated via console logging in the prototype. | Low |
 
 ### 3.1.2 Non-Functional Requirements
+
+Table 3.2: Non-Functional Requirements
 
 | Requirement Category | Specification | Rationale |
 |---|---|---|
@@ -776,6 +810,8 @@ The prototype is scoped to deliver six core features. These constitute the Minim
 
 The following features represent the next development phase and are designed to be architecturally compatible with the MVP but are not implemented in the prototype:
 
+Table 3.3: MVP vs. Advanced Post-MVP Features
+
 | Feature | Description | Strategic Value |
 |---|---|---|
 | Land Tokenisation (ERC-721) | Each parcel represented as a non-fungible token with complete on-chain metadata | Enables DeFi collateralisation and directly addresses the dead capital problem |
@@ -789,7 +825,16 @@ The following features represent the next development phase and are designed to 
 
 ## 3.2 Use Case Analysis
 
+The use cases and relationships between system actors are illustrated in Figure 3.1.
+
+```
+# Figure 3.1: Use Case Diagram — SecureLand Registry (SLR)
+[Use Case Diagram Placeholder - Showing Registrar (Register Title, Resolve Dispute), LandOwner (Transfer Title, File Dispute), Surveyor (Verify Boundaries), Verifier (Verify Title)]
+```
+
 ### 3.2.1 Actors
+
+Table 3.4: System Actors
 
 | Actor | Role Description |
 |---|---|
@@ -830,6 +875,13 @@ The following features represent the next development phase and are designed to 
   5. The Flask backend detects the event, updates the PostgreSQL record, and sends notifications to both parties.
 - **Postcondition:** The parcel's `currentOwner` is updated on-chain. The transfer is permanently recorded in the parcel's history. Both parties receive confirmation.
 
+The sequence of approval steps for ownership transfer is shown in Figure 3.2.
+
+```
+# Figure 3.2: UC2 Multi-Signature Transfer Approval Flow
+[Multi-Signature Transfer Flow Diagram Placeholder - Showing Owner Request -> Surveyor Verification -> Registrar Approval -> Smart Contract Ownership Update]
+```
+
 **UC3: Verify Land Record**
 
 - **Primary Actor:** Verifier
@@ -857,6 +909,12 @@ The following features represent the next development phase and are designed to 
   3. The smart contract updates the dispute status, and — if the original ownership is confirmed — changes the parcel's status back to ACTIVE. If the dispute is valid, further action (including title correction) is initiated outside the prototype scope.
 - **Postcondition:** The dispute record is permanently on-chain. If resolved in favour of the original owner, the parcel is unfrozen. All dispute actions are visible in the audit trail.
 
+The dispute filing and resolution lifecycle is shown in Figure 3.3.
+
+```
+# Figure 3.3: UC4 Dispute Filing and Resolution Flow
+[Dispute Resolution Flow Diagram Placeholder - Showing Claimant Filing -> Parcel Frozen (Disputed Status) -> Registrar Review -> Registrar Resolution -> Parcel Reactivated]
+```
 
 ## 3.3 System Architecture
 
@@ -873,6 +931,8 @@ The three conceptual tiers remain useful for high-level description:
 
 The choice of blockchain platform is one of the most consequential and frequently under-justified decisions in blockchain land registry literature. The following comparative analysis justifies the selection of Polygon over both Ethereum mainnet and Hyperledger Fabric:
 
+Table 3.5: Blockchain Platform Comparison
+
 | Criterion | Ethereum Mainnet | Hyperledger Fabric | Polygon Amoy (Selected) |
 |---|---|---|---|
 | **Permission Model** | Permissionless — open to all | Fully permissioned — enterprise access control | Permissioned Layer 2 on Ethereum — consortium-compatible |
@@ -888,6 +948,8 @@ The choice of blockchain platform is one of the most consequential and frequentl
 
 ### 3.3.3 Technology Stack
 
+Table 3.6: Technology Stack
+
 | Component | Technology | Justification |
 |---|---|---|
 | **Smart Contracts** | Solidity 0.8.x | Industry standard for EVM-compatible blockchains; extensive tooling and the OpenZeppelin audited library ecosystem |
@@ -901,6 +963,13 @@ The choice of blockchain platform is one of the most consequential and frequentl
 | **Security Analysis** | Slither, Mythril | Slither for static analysis; Mythril for symbolic execution; both target smart contract vulnerability classes catalogued by Atzei et al. (2017) |
 
 ### 3.3.4 Five-Layer Architecture Description
+
+The detailed interaction between components across the five system layers is shown in Figure 3.4.
+
+```
+# Figure 3.4: Five-Layer System Architecture (Detailed)
+[Detailed System Architecture Diagram Placeholder - Showing presentation, API gateway, services, database/IPFS/blockchain data storage, and external APIs]
+```
 
 **Layer 1 — Presentation Layer**
 
@@ -942,6 +1011,8 @@ The core smart contract, `LandRegistry.sol`, manages the entire lifecycle of a l
 
 Four blockchain-level roles are defined as `bytes32` constants using OpenZeppelin's `AccessControl` pattern:
 
+Table 3.7: Smart Contract Role Definitions
+
 | Role Constant | Holder | Permitted Actions |
 |---|---|---|
 | `REGISTRAR_ROLE` | Government registry officials | `registerLand()`, `approveTransferAsRegistrar()`, `resolveDispute()` |
@@ -954,7 +1025,7 @@ Four blockchain-level roles are defined as `bytes32` constants using OpenZeppeli
 
 The three primary data structures within the contract are as follows:
 
-```
+```solidity
 LandParcel {
     parcelId: uint256           // Unique auto-incremented identifier
     currentOwner: address       // Ethereum wallet address of the current owner
@@ -995,6 +1066,8 @@ Dispute {
 
 ### 3.4.4 Key Functions
 
+Table 3.8: Smart Contract Key Functions
+
 | Function | Access Control | Description |
 |---|---|---|
 | `registerLand()` | REGISTRAR_ROLE only | Creates a new `LandParcel` struct with all provided metadata; emits `LandRegistered` event; increments `nextParcelId` |
@@ -1011,6 +1084,8 @@ Dispute {
 ### 3.4.5 Event Emissions
 
 Every state-changing operation emits a corresponding event. Events are the primary mechanism by which the Flask backend maintains synchronisation with the blockchain without polling:
+
+Table 3.9: Smart Contract Event Emissions
 
 | Event | Emitted On | Indexed Parameters |
 |---|---|---|
@@ -1064,6 +1139,12 @@ The cross-layer data integrity verification process is as follows:
 3. During any subsequent verification request, the system retrieves the document from IPFS using the stored CID, recomputes its SHA-256 hash, and compares it against the on-chain hash.
 4. A hash match confirms the document is unaltered since registration. A mismatch indicates potential tampering and is displayed to the Verifier with a clear warning.
 
+The document verification and hash checking process is shown in Figure 3.5.
+
+```
+# Figure 3.5: Data Integrity Verification Process
+[Data Integrity Verification Process Placeholder - Showing PDF document upload -> Hash generation -> On-chain storage -> Retrieval -> Re-hashing -> Comparison]
+```
 
 ## 3.6 Security and Privacy Design
 
@@ -1076,6 +1157,8 @@ The cross-layer data integrity verification process is as follows:
 ### 3.6.2 Threat Model
 
 The following threat model is produced using the STRIDE methodology, applied specifically to the blockchain land registry deployment context in Nigeria:
+
+Table 3.10: STRIDE Threat Model
 
 | Threat | Attack Vector | Risk Level in Prototype | Required Mitigation |
 |---|---|---|---|
@@ -1101,6 +1184,13 @@ The following checklist governs the transition of the smart contract from develo
 - [ ] Events emitted for every state change to support off-chain monitoring and the audit trail dashboard
 - [ ] No personally identifiable information stored in any state variable or event parameter
 
+The status transitions of a land parcel in the smart contract are governed by the state machine shown in Figure 3.6.
+
+```
+# Figure 3.6: Smart Contract State Machine — LandParcel Status Transitions
+[State Machine Diagram Placeholder - Showing REGISTERED -> ACTIVE -> DISPUTED -> ACTIVE, or ACTIVE -> FROZEN (Revoked)]
+```
+
 ### 3.6.4 Data Privacy Design
 
 The privacy design of the SLR system is governed by four principles drawn from the NDPA 2023: data minimisation (collecting no more data than necessary), purpose limitation (using data only for the registered purpose), security (encrypting and access-controlling all personal data), and accountability (logging all access for audit review).
@@ -1112,6 +1202,8 @@ On the blockchain, these principles are operationalised through the exclusive us
 
 The prototype is developed over a four-month timeline structured as follows:
 
+Table 3.11: FYP Implementation Roadmap
+
 | Month | Primary Deliverable | Key Activities |
 |---|---|---|
 | **Month 1** | Research and Architecture Finalisation | Complete literature review. Finalise AUST Chapters 1 and 2. Define all smart contract function signatures. Define all Flask API endpoint schemas with request/response structures. Set up the Hardhat development project. Configure the Polygon Amoy wallet and obtain testnet MATIC for gas. |
@@ -1120,6 +1212,8 @@ The prototype is developed over a four-month timeline structured as follows:
 | **Month 4** | Testing, Evaluation, and Documentation | Execute Hardhat unit tests and record coverage report. Run Slither and Mythril security analysis. Conduct integration tests with Pytest. Conduct SUS usability survey with a minimum of 10 participants. Measure and record gas cost per operation on Polygon Amoy. Write Chapters 3, 4, and 5. |
 
 **Prototype Technology Stack Summary:**
+
+Table 3.12: Prototype Technology Stack Summary
 
 | Category | Technology |
 |---|---|
@@ -1140,8 +1234,6 @@ The system architecture was presented as a five-layer hybrid design in which blo
 The data management strategy defined a three-tier storage model — on-chain for authoritative ownership state, IPFS for tamper-evident document storage, and PostgreSQL for sensitive relational data — with a cross-layer document integrity verification process. The security design addressed authentication and authorisation at two independent enforcement layers, presented a STRIDE-based threat model specific to the Nigerian blockchain land registry context, and specified a pre-deployment smart contract security checklist. The chapter concluded with a four-month implementation roadmap governing the prototype's development.
 
 Every design decision in this chapter is traceable to a specific requirement identified in Chapter Two: the multi-signature workflow responds to the gubernatorial consent requirement of the Land Use Act; the IPFS document storage responds to the documented vulnerability of paper-based records to physical destruction; the dual role enforcement responds to the corruption risk from centralised single-authority control; and the MVP scoping responds to the resource constraints of the final year project context. Chapter Four will present the implementation of this design, including the specific code configurations, test outcomes, and performance measurements generated during development.
-
-
 
 ---
 
@@ -1212,8 +1304,3 @@ World Bank. (2025). *Nigeria Development Update: Unlocking land potential*. Worl
 Yaga, D., Mell, P., Roby, N., & Scarfone, K. (2019). Blockchain technology overview. *NISTIR 8202*, National Institute of Standards and Technology. https://doi.org/10.6028/NIST.IR.8202
 
 Zevenbergen, J., De Vries, W., & Bennett, R. (Eds.). (2013). *Advances in responsible land administration*. CRC Press.
-
-
-
----
-

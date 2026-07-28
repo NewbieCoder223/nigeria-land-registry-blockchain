@@ -242,19 +242,38 @@ def parse_md_to_doc(doc, md_text, in_prelim=False):
     while i < len(lines):
         line = lines[i]
 
-        # ---- CODE BLOCK (``` ... ```) → Figure placeholder ----------------
+        # ---- CODE BLOCK (``` ... ```) → Figure placeholder or Monospaced code ----------------
         if line.strip().startswith("```"):
+            lang = line.strip()[3:].strip().lower()
             # Collect until closing ```
             block_lines = []
             i += 1
             while i < len(lines) and not lines[i].strip().startswith("```"):
                 block_lines.append(lines[i])
                 i += 1
-            figure_counter[0] += 1
-            # Try to extract a label from first meaningful comment line
-            first = next((l for l in block_lines if l.strip()), "")
-            label = first.strip().lstrip("#").strip() if first else f"Figure {figure_counter[0]}"
-            add_figure_placeholder(doc, f"Figure — {label[:80]}")
+            
+            if lang in ("solidity", "python", "javascript", "json", "sql", "bash"):
+                # Monospaced code block formatting
+                for bline in block_lines:
+                    p = doc.add_paragraph()
+                    p.paragraph_format.left_indent = Cm(1.25)
+                    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                    p.paragraph_format.line_spacing = 1.0
+                    p.paragraph_format.space_after = Pt(2)
+                    p.paragraph_format.space_before = Pt(0)
+                    run = p.add_run(bline)
+                    run.font.name = "Consolas"
+                    run.font.size = Pt(9.5)
+            else:
+                # Figure placeholder
+                figure_counter[0] += 1
+                first = next((l for l in block_lines if l.strip()), "")
+                label = first.strip().lstrip("#").strip() if first else f"Figure {figure_counter[0]}"
+                
+                if label.lower().startswith("figure"):
+                    add_figure_placeholder(doc, label[:80])
+                else:
+                    add_figure_placeholder(doc, f"Figure — {label[:80]}")
             i += 1
             continue
 
@@ -417,7 +436,7 @@ def build():
     # -----------------------------------------------------------------------
     out = os.path.join(BASE, "SecureLandRegistry_Chapters1to3_AUST.docx")
     doc.save(out)
-    print(f"\n✅  Saved: {out}")
+    print(f"\nSaved: {out}")
     print(f"   Size : {os.path.getsize(out) // 1024} KB")
 
 

@@ -13,6 +13,8 @@ The design throughout this chapter is governed by three principles derived from 
 
 The following table defines the functional requirements of the SLR system. Each requirement is assigned a unique identifier, a priority level (High, Medium, or Low), and a description sufficient for implementation.
 
+Table 3.1: Functional Requirements
+
 | ID | Requirement | Description | Priority |
 |---|---|---|---|
 | FR01 | User Registration and Authentication | Stakeholders register with a unique identifier — a simulated NIN hash — and receive a role assignment. JWT-based session management governs all subsequent access. | High |
@@ -27,6 +29,8 @@ The following table defines the functional requirements of the SLR system. Each 
 | FR10 | Notification | Email and SMS notifications are generated for ownership changes, dispute filings, and transfer approvals. These are simulated via console logging in the prototype. | Low |
 
 ### 3.1.2 Non-Functional Requirements
+
+Table 3.2: Non-Functional Requirements
 
 | Requirement Category | Specification | Rationale |
 |---|---|---|
@@ -55,6 +59,8 @@ The prototype is scoped to deliver six core features. These constitute the Minim
 
 The following features represent the next development phase and are designed to be architecturally compatible with the MVP but are not implemented in the prototype:
 
+Table 3.3: MVP vs. Advanced Post-MVP Features
+
 | Feature | Description | Strategic Value |
 |---|---|---|
 | Land Tokenisation (ERC-721) | Each parcel represented as a non-fungible token with complete on-chain metadata | Enables DeFi collateralisation and directly addresses the dead capital problem |
@@ -68,7 +74,16 @@ The following features represent the next development phase and are designed to 
 
 ## 3.2 Use Case Analysis
 
+The use cases and relationships between system actors are illustrated in Figure 3.1.
+
+```
+# Figure 3.1: Use Case Diagram — SecureLand Registry (SLR)
+[Use Case Diagram Placeholder - Showing Registrar (Register Title, Resolve Dispute), LandOwner (Transfer Title, File Dispute), Surveyor (Verify Boundaries), Verifier (Verify Title)]
+```
+
 ### 3.2.1 Actors
+
+Table 3.4: System Actors
 
 | Actor | Role Description |
 |---|---|
@@ -109,6 +124,13 @@ The following features represent the next development phase and are designed to 
   5. The Flask backend detects the event, updates the PostgreSQL record, and sends notifications to both parties.
 - **Postcondition:** The parcel's `currentOwner` is updated on-chain. The transfer is permanently recorded in the parcel's history. Both parties receive confirmation.
 
+The sequence of approval steps for ownership transfer is shown in Figure 3.2.
+
+```
+# Figure 3.2: UC2 Multi-Signature Transfer Approval Flow
+[Multi-Signature Transfer Flow Diagram Placeholder - Showing Owner Request -> Surveyor Verification -> Registrar Approval -> Smart Contract Ownership Update]
+```
+
 **UC3: Verify Land Record**
 
 - **Primary Actor:** Verifier
@@ -136,6 +158,12 @@ The following features represent the next development phase and are designed to 
   3. The smart contract updates the dispute status, and — if the original ownership is confirmed — changes the parcel's status back to ACTIVE. If the dispute is valid, further action (including title correction) is initiated outside the prototype scope.
 - **Postcondition:** The dispute record is permanently on-chain. If resolved in favour of the original owner, the parcel is unfrozen. All dispute actions are visible in the audit trail.
 
+The dispute filing and resolution lifecycle is shown in Figure 3.3.
+
+```
+# Figure 3.3: UC4 Dispute Filing and Resolution Flow
+[Dispute Resolution Flow Diagram Placeholder - Showing Claimant Filing -> Parcel Frozen (Disputed Status) -> Registrar Review -> Registrar Resolution -> Parcel Reactivated]
+```
 
 ## 3.3 System Architecture
 
@@ -152,6 +180,8 @@ The three conceptual tiers remain useful for high-level description:
 
 The choice of blockchain platform is one of the most consequential and frequently under-justified decisions in blockchain land registry literature. The following comparative analysis justifies the selection of Polygon over both Ethereum mainnet and Hyperledger Fabric:
 
+Table 3.5: Blockchain Platform Comparison
+
 | Criterion | Ethereum Mainnet | Hyperledger Fabric | Polygon Amoy (Selected) |
 |---|---|---|---|
 | **Permission Model** | Permissionless — open to all | Fully permissioned — enterprise access control | Permissioned Layer 2 on Ethereum — consortium-compatible |
@@ -167,6 +197,8 @@ The choice of blockchain platform is one of the most consequential and frequentl
 
 ### 3.3.3 Technology Stack
 
+Table 3.6: Technology Stack
+
 | Component | Technology | Justification |
 |---|---|---|
 | **Smart Contracts** | Solidity 0.8.x | Industry standard for EVM-compatible blockchains; extensive tooling and the OpenZeppelin audited library ecosystem |
@@ -180,6 +212,13 @@ The choice of blockchain platform is one of the most consequential and frequentl
 | **Security Analysis** | Slither, Mythril | Slither for static analysis; Mythril for symbolic execution; both target smart contract vulnerability classes catalogued by Atzei et al. (2017) |
 
 ### 3.3.4 Five-Layer Architecture Description
+
+The detailed interaction between components across the five system layers is shown in Figure 3.4.
+
+```
+# Figure 3.4: Five-Layer System Architecture (Detailed)
+[Detailed System Architecture Diagram Placeholder - Showing presentation, API gateway, services, database/IPFS/blockchain data storage, and external APIs]
+```
 
 **Layer 1 — Presentation Layer**
 
@@ -221,6 +260,8 @@ The core smart contract, `LandRegistry.sol`, manages the entire lifecycle of a l
 
 Four blockchain-level roles are defined as `bytes32` constants using OpenZeppelin's `AccessControl` pattern:
 
+Table 3.7: Smart Contract Role Definitions
+
 | Role Constant | Holder | Permitted Actions |
 |---|---|---|
 | `REGISTRAR_ROLE` | Government registry officials | `registerLand()`, `approveTransferAsRegistrar()`, `resolveDispute()` |
@@ -233,7 +274,7 @@ Four blockchain-level roles are defined as `bytes32` constants using OpenZeppeli
 
 The three primary data structures within the contract are as follows:
 
-```
+```solidity
 LandParcel {
     parcelId: uint256           // Unique auto-incremented identifier
     currentOwner: address       // Ethereum wallet address of the current owner
@@ -274,6 +315,8 @@ Dispute {
 
 ### 3.4.4 Key Functions
 
+Table 3.8: Smart Contract Key Functions
+
 | Function | Access Control | Description |
 |---|---|---|
 | `registerLand()` | REGISTRAR_ROLE only | Creates a new `LandParcel` struct with all provided metadata; emits `LandRegistered` event; increments `nextParcelId` |
@@ -290,6 +333,8 @@ Dispute {
 ### 3.4.5 Event Emissions
 
 Every state-changing operation emits a corresponding event. Events are the primary mechanism by which the Flask backend maintains synchronisation with the blockchain without polling:
+
+Table 3.9: Smart Contract Event Emissions
 
 | Event | Emitted On | Indexed Parameters |
 |---|---|---|
@@ -343,6 +388,12 @@ The cross-layer data integrity verification process is as follows:
 3. During any subsequent verification request, the system retrieves the document from IPFS using the stored CID, recomputes its SHA-256 hash, and compares it against the on-chain hash.
 4. A hash match confirms the document is unaltered since registration. A mismatch indicates potential tampering and is displayed to the Verifier with a clear warning.
 
+The document verification and hash checking process is shown in Figure 3.5.
+
+```
+# Figure 3.5: Data Integrity Verification Process
+[Data Integrity Verification Process Placeholder - Showing PDF document upload -> Hash generation -> On-chain storage -> Retrieval -> Re-hashing -> Comparison]
+```
 
 ## 3.6 Security and Privacy Design
 
@@ -355,6 +406,8 @@ The cross-layer data integrity verification process is as follows:
 ### 3.6.2 Threat Model
 
 The following threat model is produced using the STRIDE methodology, applied specifically to the blockchain land registry deployment context in Nigeria:
+
+Table 3.10: STRIDE Threat Model
 
 | Threat | Attack Vector | Risk Level in Prototype | Required Mitigation |
 |---|---|---|---|
@@ -380,6 +433,13 @@ The following checklist governs the transition of the smart contract from develo
 - [ ] Events emitted for every state change to support off-chain monitoring and the audit trail dashboard
 - [ ] No personally identifiable information stored in any state variable or event parameter
 
+The status transitions of a land parcel in the smart contract are governed by the state machine shown in Figure 3.6.
+
+```
+# Figure 3.6: Smart Contract State Machine — LandParcel Status Transitions
+[State Machine Diagram Placeholder - Showing REGISTERED -> ACTIVE -> DISPUTED -> ACTIVE, or ACTIVE -> FROZEN (Revoked)]
+```
+
 ### 3.6.4 Data Privacy Design
 
 The privacy design of the SLR system is governed by four principles drawn from the NDPA 2023: data minimisation (collecting no more data than necessary), purpose limitation (using data only for the registered purpose), security (encrypting and access-controlling all personal data), and accountability (logging all access for audit review).
@@ -391,6 +451,8 @@ On the blockchain, these principles are operationalised through the exclusive us
 
 The prototype is developed over a four-month timeline structured as follows:
 
+Table 3.11: FYP Implementation Roadmap
+
 | Month | Primary Deliverable | Key Activities |
 |---|---|---|
 | **Month 1** | Research and Architecture Finalisation | Complete literature review. Finalise AUST Chapters 1 and 2. Define all smart contract function signatures. Define all Flask API endpoint schemas with request/response structures. Set up the Hardhat development project. Configure the Polygon Amoy wallet and obtain testnet MATIC for gas. |
@@ -399,6 +461,8 @@ The prototype is developed over a four-month timeline structured as follows:
 | **Month 4** | Testing, Evaluation, and Documentation | Execute Hardhat unit tests and record coverage report. Run Slither and Mythril security analysis. Conduct integration tests with Pytest. Conduct SUS usability survey with a minimum of 10 participants. Measure and record gas cost per operation on Polygon Amoy. Write Chapters 3, 4, and 5. |
 
 **Prototype Technology Stack Summary:**
+
+Table 3.12: Prototype Technology Stack Summary
 
 | Category | Technology |
 |---|---|

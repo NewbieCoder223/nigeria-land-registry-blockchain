@@ -126,6 +126,8 @@ This project makes substantive contributions across four dimensions:
 
 The prototype is designed with a phased real-world deployment model in mind. Were the system to move beyond the academic context, the following three-phase pathway represents a viable approach:
 
+Table 1.1: Real-World Implementation Pathway
+
 | Phase | Duration | Key Activities |
 |---|---|---|
 | Phase 1: Digitisation | 6 months | Partner with one Local Government Area. Digitise all existing paper records. Build a GIS spatial database. Train registry staff on digital workflows. |

@@ -36,6 +36,8 @@ Blockchain is a distributed ledger technology (DLT) in which transactions are re
 
 The properties most directly relevant to land registry design are as follows:
 
+Table 2.1: Blockchain Properties Relevant to Land Registry
+
 | Property | definition | Application to Land Registry |
 |---|---|---|
 | **Immutability** | Once a block is confirmed by consensus and appended to the chain, its contents cannot be altered without invalidating every subsequent block and requiring agreement from a majority of the network | Land ownership records written to the chain cannot be retroactively modified, eliminating the most common mechanism for title fraud |
@@ -54,6 +56,19 @@ The choice of blockchain network type is one of the most consequential architect
 
 **Consortium or permissioned blockchains** occupy a middle ground in which a pre-selected group of organisations — for a land registry application, this might include the government land bureau, licensed survey agencies, and authorised banks — jointly operate and validate the network. This model is increasingly recommended for land administration precisely because it balances the transparency and immutability benefits of public blockchain with the privacy and performance requirements of institutional data management (Ansah et al., 2023). Polygon, the Layer 2 network selected for this project, provides a practical route to this model: its Solidity-compatible smart contracts, negligible transaction costs, and high throughput make it suitable for prototype development, while its architecture supports a migration path to a fully permissioned consortium model for production deployment.
 
+The key trade-offs between public, private, and consortium blockchains are summarized below:
+
+Table 2.2: Comparison of Blockchain Network Types
+
+| Blockchain Type | Public Blockchains | Private Blockchains | Consortium / Permissioned |
+|---|---|---|---|
+| **Access Control** | Open to anyone (permissionless) | Single organization (fully private) | Pre-selected group (permissioned) |
+| **Transaction Cost** | High (fluctuates with congestion) | Near zero | Negligible / very low |
+| **Throughput** | Low (~15-30 TPS) | Very high (2,000+ TPS) | High (~7,000 TPS on Layer 2) |
+| **Smart Contracts** | Supported (Solidity) | Supported (Go, Java) | Supported (Solidity/EVM-compatible) |
+| **Privacy** | Low (all transactions public) | High (restricted channels) | Moderate (ZK-proofs available) |
+| **Example Platform** | Ethereum Mainnet | Hyperledger Fabric | Polygon Amoy testnet (Selected) |
+
 ### 2.2.3 Critical Assessment: When Blockchain Is and Is Not Justified
 
 A critical question must be addressed directly before proceeding further. Is blockchain genuinely necessary for a Nigerian land registry application, or would a well-designed centralised database with role-based access control and a comprehensive audit log achieve equivalent outcomes at lower cost and complexity?
@@ -63,6 +78,8 @@ The weight of the evidence supports blockchain as justified specifically for thi
 In Nigeria's land administration system, all three conditions are demonstrably met. The stakeholders in any land transaction — government officials, private landowners, licensed surveyors, banks providing mortgages, and legal practitioners — are parties with potentially conflicting interests and no pre-existing shared source of truth. Institutional trust in land registries, as documented by Salawu (2025) and Transparency International (2025), is critically low. And Babalola and Hull (2019) have shown empirically that centralised registries are systematically manipulated. In this environment, a centralised digital database would simply digitalise the corruption rather than structurally constrain it.
 
 However, not every component of the system benefits from blockchain. The following table identifies sub-components of the overall system where centralised approaches are more appropriate:
+
+Table 2.3: When Blockchain Is and Is Not Justified
 
 | Scenario | More Appropriate Alternative |
 |---|---|
@@ -80,6 +97,8 @@ This project's position is explicit: blockchain provides one layer — the immut
 ### 2.3.1 Global Case Studies
 
 The most significant global experiments with blockchain-based land registration are synthesised in the following table, drawing on Ansah et al. (2023), Shang and Price (2019), and supplementary sources:
+
+Table 2.4: Global Blockchain Land Registry Case Studies
 
 | Country | Year | Platform | Current Status | Key Outcome | Key Lesson |
 |---|---|---|---|---|---|
@@ -108,6 +127,8 @@ Three conclusions from the global case study literature directly inform the desi
 ### 2.4.1 The Land Use Act 1978: Implications for Smart Contract Design
 
 Every design decision in a blockchain land registry for Nigeria must be evaluated against the Land Use Act of 1978, because the Act is the constitutional superior of any technical system that operates within Nigerian law. The following table maps the Act's most consequential provisions to corresponding design requirements in the SecureLand Registry system:
+
+Table 2.5: Land Use Act Provisions vs. Smart Contract Design Responses
 
 | Act Provision | Implication for Blockchain Design | Design Response in SLR |
 |---|---|---|
@@ -146,6 +167,8 @@ For land registry applications, smart contracts most commonly follow either the 
 ### 2.5.2 Smart Contract Security Vulnerabilities
 
 Atzei et al. (2017) conducted a foundational survey of attack classes against Ethereum smart contracts, establishing a taxonomy that remains the standard reference for smart contract security analysis. The vulnerabilities most relevant to a land registry contract are:
+
+Table 2.6: Smart Contract Vulnerability Classes and Mitigations
 
 | Vulnerability Class | Description | Mitigation Strategy |
 |---|---|---|
@@ -189,6 +212,7 @@ This project is grounded in two complementary theoretical frameworks, each of wh
 The conceptual framework below illustrates how the system's components interact to achieve the project's objectives. The five-layer architecture — from user-facing presentation through to the blockchain and external integrations — reflects the design principle that blockchain operates as the trust layer within a broader system, not as the entire system.
 
 ```
+# Figure 2.1: Five-Layer System Architecture Conceptual Framework
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       LAYER 1: PRESENTATION                          │
 │   Web Application (Progressive Web App) │ USSD Gateway (feature     │
@@ -240,6 +264,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.1 Functional Gaps in Existing Blockchain Land Registry Prototypes
 
+Table 2.7: Functional Gaps in Existing Blockchain Land Registry Prototypes
+
 | Gap | Severity | Required State |
 |---|---|---|
 | GIS and land mapping integration | Critical | Spatial coordinates and boundary definitions are required to prevent boundary fraud — the registration of the same physical parcel under slightly different GPS coordinates |
@@ -251,6 +277,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.2 Technical Gaps
 
+Table 2.8: Technical Gaps in Existing Prototypes
+
 | Gap | Specific Problem |
 |---|---|
 | Blockchain platform selection unjustified | Projects that reference Ethereum and Hyperledger Fabric without comparative analysis or a decision rationale are architecturally undefined; the choice must be explicitly justified |
@@ -260,6 +288,8 @@ The following gaps were identified both in the existing academic literature and 
 
 ### 2.9.3 Legal Gaps
 
+Table 2.9: Legal Gaps in Existing Prototypes
+
 | Gap | Impact |
 |---|---|
 | Land Use Act provisions not reflected in technical design | The Act's gubernatorial consent requirement fundamentally constrains all transfer logic; a system that ignores this produces transfers that are technically valid on-chain but legally void in Nigeria |
@@ -267,6 +297,8 @@ The following gaps were identified both in the existing academic literature and 
 | Dual tenure system ignored | Nigeria's customary land tenure system represents the majority of rural landholdings; omitting it produces a system that is legally incomplete for most of the country |
 
 ### 2.9.4 Socio-Political Gaps
+
+Table 2.10: Socio-Political Gaps in Existing Prototypes
 
 | Gap | Reality |
 |---|---|

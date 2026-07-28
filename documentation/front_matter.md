@@ -178,6 +178,7 @@ I would like to express my sincere gratitude to Dr Obi, my project supervisor, f
 
 | Table | Title | Page |
 |---|---|---|
+| Table 1.1 | Real-World Implementation Pathway | 13 |
 | Table 2.1 | Blockchain Properties Relevant to Land Registry | 20 |
 | Table 2.2 | Comparison of Blockchain Network Types | 22 |
 | Table 2.3 | When Blockchain Is and Is Not Justified | 23 |
@@ -199,6 +200,7 @@ I would like to express my sincere gratitude to Dr Obi, my project supervisor, f
 | Table 3.9 | Smart Contract Event Emissions | 67 |
 | Table 3.10 | STRIDE Threat Model | 72 |
 | Table 3.11 | FYP Implementation Roadmap | 77 |
+| Table 3.12 | Prototype Technology Stack Summary | 78 |
 
 ---
 
