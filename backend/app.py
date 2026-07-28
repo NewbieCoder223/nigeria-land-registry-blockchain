@@ -12,6 +12,7 @@ WHY THIS ARCHITECTURE:
 """
 
 import os
+import logging
 import requests
 from functools import wraps
 from flask import Flask, jsonify, request
@@ -86,7 +87,8 @@ def require_auth(roles=None):
                 request.user = user
                 return fn(*args, **kwargs)
             except Exception as e:
-                return jsonify({"message": str(e)}), 401
+                logging.exception("Auth verification failed")
+                return jsonify({"message": "Authentication failed"}), 401
         return wrapper
     return decorator
 
@@ -155,7 +157,8 @@ def register_user():
 
         return jsonify({"message": "User created", "user_id": user.id}), 201
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
+        logging.exception("Registration failed")
+        return jsonify({"message": "Registration failed. Please try again."}), 400
 
 @app.route('/api/auth/login', methods=['POST'])
 def login_user():
@@ -171,7 +174,8 @@ def login_user():
             "user": res.user
         }), 200
     except Exception as e:
-        return jsonify({"message": str(e)}), 401
+        logging.exception("Login failed")
+        return jsonify({"message": "Invalid email or password"}), 401
 
 
 @app.route('/api/auth/verify-nin', methods=['POST'])
@@ -247,4 +251,4 @@ def get_transfer_history(parcel_id):
 
 if __name__ == '__main__':
     # Usage: python app.py
-    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=os.environ.get("FLASK_DEBUG", "false").lower() == "true", port=int(os.environ.get("PORT", 5000)))
