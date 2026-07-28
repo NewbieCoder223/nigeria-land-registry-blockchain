@@ -70,9 +70,9 @@ const NationalLedger = ({ showToast }) => {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-8">
         <div>
-          <h2 className="text-3xl font-black italic tracking-tighter uppercase flex items-center gap-3 italic">
+          <h2 className="text-3xl font-black italic tracking-tighter uppercase flex items-center gap-3">
              <BookOpen className="text-nigeria-green w-8 h-8" />
-             National <span className="text-white/40 italic uppercase italic italic italic">Ledger Registry</span>
+             National <span className="text-white/40 italic uppercase">Ledger Registry</span>
           </h2>
           <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase mt-1">Sovereign Authority: Governor Command Center</p>
         </div>
@@ -118,7 +118,7 @@ const NationalLedger = ({ showToast }) => {
            <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
                  <BarChart3 className="text-nigeria-green w-5 h-5" />
-                 <span className="text-[10px] font-black tracking-widest text-white/40 uppercase items-center leading-none italic italic italic italic uppercase italic">Regional Integrity Spread</span>
+                 <span className="text-[10px] font-black tracking-widest text-white/40 uppercase items-center leading-none italic">Regional Integrity Spread</span>
               </div>
               <div className="flex gap-2">
                  <div className="w-2 h-2 rounded-full bg-nigeria-green" />
@@ -151,7 +151,7 @@ const NationalLedger = ({ showToast }) => {
            <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
                  <Globe2 className="text-nigeria-green w-5 h-5" />
-                 <span className="text-[10px] font-black tracking-widest text-white/40 uppercase items-center leading-none italic italic italic italic uppercase italic">Network Health</span>
+                 <span className="text-[10px] font-black tracking-widest text-white/40 uppercase items-center leading-none italic">Network Health</span>
               </div>
               <div className="flex justify-center py-8">
                  <div className="w-32 h-32 rounded-full border-4 border-dashed border-nigeria-green/20 flex items-center justify-center p-4">

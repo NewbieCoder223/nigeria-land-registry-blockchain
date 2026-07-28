@@ -89,7 +89,7 @@ const NINDatabase = ({ showToast }) => {
                </div>
                <div className="flex items-center gap-2">
                   <Lock className="w-3 h-3 text-white/40" />
-                  <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest italic italic">Hardware Enclave Secure</span>
+                  <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest italic">Hardware Enclave Secure</span>
                </div>
             </div>
          </div>
@@ -132,18 +132,18 @@ const NINDatabase = ({ showToast }) => {
             <tbody>
                {records.map(r => (
                   <tr key={r.nin} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                     <td className="p-4 text-[11px] font-mono text-white/60 tracking-wider items-center leading-none italic italic italic italic uppercase italic">{r.nin}</td>
-                     <td className="p-4 text-[11px] font-black text-white italic italic italic italic uppercase italic">{r.name}</td>
+                     <td className="p-4 text-[11px] font-mono text-white/60 tracking-wider items-center leading-none italic uppercase">{r.nin}</td>
+                     <td className="p-4 text-[11px] font-black text-white italic uppercase">{r.name}</td>
                      <td className="p-4">
                         <div className="flex items-center gap-2">
                            <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
                               <div className={`h-full ${r.status === 'FLAGGED' ? 'bg-red-500' : 'bg-nigeria-green'}`} style={{ width: r.matchScore }} />
                            </div>
-                           <span className="text-[10px] font-black text-white/60 italic italic uppercase italic">{r.matchScore}</span>
+                           <span className="text-[10px] font-black text-white/60 italic uppercase">{r.matchScore}</span>
                         </div>
                      </td>
                      <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase italic italic italic italic uppercase italic ${r.status === 'FLAGGED' ? 'bg-red-500/10 text-red-500' : 'bg-nigeria-green/10 text-nigeria-green'}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase italic ${r.status === 'FLAGGED' ? 'bg-red-500/10 text-red-500' : 'bg-nigeria-green/10 text-nigeria-green'}`}>
                            {r.status}
                         </span>
                      </td>

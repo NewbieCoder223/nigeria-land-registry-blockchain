@@ -14,19 +14,11 @@ import {
 } from 'lucide-react';
 import { useAccount, useChainId } from 'wagmi';
 
-const DebugOverlay = () => {
+const DebugOverlay = ({ role, setRole, showToast }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const [role, setRole] = useState(localStorage.getItem('user_role') || 'NONE');
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setRole(localStorage.getItem('user_role') || 'NONE');
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   const clearAuth = () => {
     localStorage.removeItem('auth_token');

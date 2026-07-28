@@ -5,6 +5,10 @@ import uuid
 import json
 from unittest.mock import patch, MagicMock
 
+# Set dummy env vars for Supabase to avoid initialization error during tests
+os.environ['SUPABASE_URL'] = "https://example.supabase.co"
+os.environ['SUPABASE_SERVICE_ROLE_KEY'] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.signature"
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app
