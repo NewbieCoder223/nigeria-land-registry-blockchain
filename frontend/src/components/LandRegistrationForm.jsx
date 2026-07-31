@@ -25,7 +25,8 @@ import { parseEther } from 'viem'
 import axios from 'axios'
 import { LAND_REGISTRY_ADDRESS, LAND_REGISTRY_ABI } from '../contracts/landRegistry'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+const rawBackendUrl = import.meta.env.VITE_BACKEND_URL || ''
+const BACKEND_URL = rawBackendUrl.endsWith('/api') ? rawBackendUrl.slice(0, -4) : rawBackendUrl
 
 const LandRegistrationForm = () => {
   const { address } = useAccount()
