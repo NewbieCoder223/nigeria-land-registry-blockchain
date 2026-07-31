@@ -7,11 +7,11 @@ import os
 class Config:
     SECRET_KEY      = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     # Supabase Config
-    SUPABASE_URL              = os.environ.get('SUPABASE_URL', '')
-    SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', os.environ.get('SUPABASE_KEY', ''))
+    SUPABASE_URL              = os.environ.get('SUPABASE_URL') or os.environ.get('VITE_SUPABASE_URL') or os.environ.get('NEXT_PUBLIC_SUPABASE_URL') or ''
+    SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') or os.environ.get('SUPABASE_SECRET_KEY') or os.environ.get('SUPABASE_KEY') or ''
 
     # Blockchain Config
-    RPC_URL          = os.environ.get('POLYGON_AMOY_RPC_URL', '')
+    RPC_URL          = os.environ.get('POLYGON_AMOY_RPC_URL') or os.environ.get('POLYGON_AMOY_RPC_UR') or ''
     CONTRACT_ADDRESS = os.environ.get('LAND_REGISTRY_ADDRESS', '')
 
     # Pinata IPFS Config
