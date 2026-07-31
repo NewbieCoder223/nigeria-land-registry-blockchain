@@ -367,7 +367,7 @@ const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
         {(!isSuperAdmin) ? (
           <div className="flex flex-col gap-1">
              <span className={`text-[11px] font-black italic tracking-widest uppercase ${role !== 'LANDOWNER' ? 'text-rose-500' : 'text-nigeria-green'}`}>
-               {role.replace('_', ' ')}
+               {String(role || 'LANDOWNER').replace('_', ' ')}
              </span>
              <span className="text-[9px] text-white/20 font-bold uppercase tracking-[0.2em]">Verified Protocol</span>
           </div>
