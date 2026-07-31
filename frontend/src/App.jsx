@@ -299,6 +299,19 @@ const RestrictedView = () => (
 
 const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+    localStorage.setItem('user_role', newRole);
+    switch (newRole) {
+      case 'GOVERNOR': navigate('/governor'); break;
+      case 'SURVEYOR': navigate('/surveyor'); break;
+      case 'VERIFIER': navigate('/verifier'); break;
+      case 'REGISTRAR': navigate('/registrar'); break;
+      default: navigate('/dashboard'); break;
+    }
+  }
 
   const getMenuItems = (userRole) => {
     const commonItems = [{ name: 'Sovereign Hub', icon: LayoutDashboard, path: '/dashboard' }]
@@ -368,7 +381,7 @@ const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
           <div className="group">
              <select 
                value={role} 
-               onChange={(e) => setRole(e.target.value)}
+               onChange={(e) => handleRoleChange(e.target.value)}
                className="bg-transparent text-[11px] font-black text-nigeria-green uppercase tracking-widest border-none p-0 focus:ring-0 cursor-pointer hover:brightness-125 transition-all"
              >
                <option className="bg-reg-dark" value="LANDOWNER">Land Owner</option>
