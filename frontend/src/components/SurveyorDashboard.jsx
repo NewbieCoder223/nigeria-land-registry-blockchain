@@ -82,19 +82,24 @@ const SurveyorDashboard = ({ showToast }) => {
     return () => supabase.removeChannel(channel);
   }, [isConnected, address]);
 
+  const [txHash, setTxHash] = useState(null)
+
   // 2. Blockchain Write Hook
   const { writeContractAsync, data: hash, isPending: isSigning } = useWriteContract()
 
   // 3. Transaction Monitor
+  const activeHash = txHash || hash
   const { isLoading: isMinting, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+    hash: activeHash,
   })
 
   // Cleanup on success
   useEffect(() => {
     if (isConfirmed) {
       setProcessingId(null)
+      setTxHash(null)
       showToast('Verification successfully recorded on-chain')
+      fetchData()
     }
   }, [isConfirmed])
 
@@ -103,12 +108,15 @@ const SurveyorDashboard = ({ showToast }) => {
     if (!isConnected) return showToast('Please connect your wallet first');
     setProcessingId(parcelId)
     try {
-      await writeContractAsync({
+      const submittedHash = await writeContractAsync({
         address: LAND_REGISTRY_ADDRESS,
         abi: LAND_REGISTRY_ABI,
         functionName: 'verifySurvey',
         args: [BigInt(parcelId)],
       })
+      if (submittedHash) {
+        setTxHash(submittedHash)
+      }
     } catch (err) {
       console.error(err)
       setProcessingId(null)
@@ -273,11 +281,11 @@ const SurveyorDashboard = ({ showToast }) => {
                          Deny
                       </button>
                       <button 
-                        onClick={() => handleVerify(survey.parcelId)}
-                        disabled={processingId === survey.parcelId || isSigning || isMinting}
+                        onClick={() => handleVerify(survey.parcel_id || survey.parcelId)}
+                        disabled={processingId === (survey.parcel_id || survey.parcelId) || isSigning || isMinting}
                         className="flex-1 py-2 px-4 text-[9px] font-black uppercase tracking-widest bg-teal-500/10 text-teal-400 rounded-lg border-0.5 border-teal-500/20 hover:bg-teal-500 hover:text-white transition-all disabled:opacity-30 flex items-center justify-center gap-2"
                       >
-                         {(processingId === survey.parcelId && (isSigning || isMinting)) ? (
+                         {(processingId === (survey.parcel_id || survey.parcelId) && (isSigning || isMinting)) ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
                          ) : (
                             'Verify Bounds'

@@ -11,8 +11,8 @@ class Config:
     SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', os.environ.get('SUPABASE_KEY', ''))
 
     # Blockchain Config
-    RPC_URL          = os.environ.get('POLYGON_AMOY_RPC_URL', '')
-    CONTRACT_ADDRESS = os.environ.get('LAND_REGISTRY_ADDRESS', '')
+    RPC_URL          = os.environ.get('POLYGON_AMOY_RPC_URL') or os.environ.get('POLYGON_AMOY_RPC_UR') or 'https://polygon-amoy.drpc.org'
+    CONTRACT_ADDRESS = os.environ.get('LAND_REGISTRY_ADDRESS', '0xd5588e12b24c74Cd35Eab58609C3C9B66762797a')
 
     # Pinata IPFS Config
     PINATA_API_KEY    = os.environ.get('PINATA_API_KEY', '')

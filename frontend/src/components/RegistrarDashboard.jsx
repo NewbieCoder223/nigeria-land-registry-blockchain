@@ -69,23 +69,29 @@ const RegistrarDashboard = ({ showToast }) => {
     return () => supabase.removeChannel(channel);
   }, [isConnected, address]);
 
+  const [txHash, setTxHash] = useState(null)
+
   // 2. Blockchain Write Hook
   const { writeContractAsync, data: hash, isPending: isSigning } = useWriteContract()
 
   // 3. Transaction Monitor
+  const activeHash = txHash || hash
   const { isLoading: isMinting, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+    hash: activeHash,
   })
 
   const handleApprove = async (parcelId) => {
     setProcessingId(parcelId)
     try {
-      await writeContractAsync({
+      const submittedHash = await writeContractAsync({
         address: LAND_REGISTRY_ADDRESS,
         abi: LAND_REGISTRY_ABI,
         functionName: 'approveTransfer',
         args: [BigInt(parcelId)],
       })
+      if (submittedHash) {
+        setTxHash(submittedHash)
+      }
     } catch (err) {
       console.error(err)
       setProcessingId(null) // Unfreeze UI
@@ -94,8 +100,10 @@ const RegistrarDashboard = ({ showToast }) => {
 
   useEffect(() => {
     if (isConfirmed) {
-      setPendingDeeds(prev => prev.filter(r => r.parcelId !== processingId))
       setProcessingId(null)
+      setTxHash(null)
+      showToast('Title Deed & Ownership Transfer finalized on-chain')
+      fetchData()
     }
   }, [isConfirmed])
 
