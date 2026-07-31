@@ -28,34 +28,35 @@ const RegistrarDashboard = ({ showToast }) => {
   const [counts, setCounts] = useState({ issued: 0, rofo: 0, transfers: 0 })
 
   const fetchData = async () => {
-    if (!isConnected || !address) {
-      setIsLoading(false);
-      return;
-    }
     setIsLoading(true);
+    try {
+      if (isConnected && address) {
+        // 1. Fetch pending deeds (Legally validated but not registrar approved)
+        const { data: transfers, error } = await supabase
+          .from('transfers')
+          .select('*, parcels (*)')
+          .eq('status', 'LegallyValidated')
+          .eq('registrar_approved', false);
 
-    // 1. Fetch pending deeds (Legally validated but not registrar approved)
-    const { data: transfers, error } = await supabase
-      .from('transfers')
-      .select('*, parcels (*)')
-      .eq('status', 'LegallyValidated')
-      .eq('registrar_approved', false);
+        if (!error && transfers) {
+          setPendingDeeds(transfers);
+        }
 
-    if (!error && transfers) {
-      setPendingDeeds(transfers);
+        // 2. Fetch stats for summary boxes (Approximation for prototype)
+        const { count: issuedCount } = await supabase.from('parcels').select('*', { count: 'exact', head: true });
+        const { count: transferCount } = await supabase.from('transfers').select('*', { count: 'exact', head: true }).eq('status', 'Completed');
+        
+        setCounts({
+          issued: issuedCount || 0,
+          rofo: Math.floor((issuedCount || 0) * 0.7),
+          transfers: transferCount || 0
+        });
+      }
+    } catch (err) {
+      console.error("Registrar fetch error:", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    // 2. Fetch stats for summary boxes (Approximation for prototype)
-    const { count: issuedCount } = await supabase.from('parcels').select('*', { count: 'exact', head: true });
-    const { count: transferCount } = await supabase.from('transfers').select('*', { count: 'exact', head: true }).eq('status', 'Completed');
-    
-    setCounts({
-      issued: issuedCount || 0,
-      rofo: Math.floor((issuedCount || 0) * 0.7), // Mock split
-      transfers: transferCount || 0
-    });
-
-    setIsLoading(false);
   };
 
   useEffect(() => {

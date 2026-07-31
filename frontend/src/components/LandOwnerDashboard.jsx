@@ -36,19 +36,35 @@ const LandOwnerDashboard = ({ showToast }) => {
 
     const fetchParcels = async () => {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('parcels')
-        .select('*')
-        .eq('owner_address', address.toLowerCase());
-      
-      if (!error && data) {
-        setParcels(data.map(p => ({
-          ...p,
-          // Parse coordinates if they come as string
-          coordinates: typeof p.gps_coordinates === 'string' ? JSON.parse(p.gps_coordinates) : p.gps_coordinates
-        })));
+      try {
+        if (isConnected && address) {
+          const { data, error } = await supabase
+            .from('parcels')
+            .select('*')
+            .eq('owner_address', address.toLowerCase());
+          
+          if (!error && data) {
+            setParcels(data.map(p => {
+              let coords = [];
+              if (p.gps_coordinates) {
+                try {
+                  coords = typeof p.gps_coordinates === 'string' ? JSON.parse(p.gps_coordinates) : p.gps_coordinates;
+                } catch (e) {
+                  coords = [];
+                }
+              }
+              return {
+                ...p,
+                coordinates: Array.isArray(coords) ? coords : []
+              };
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("LandOwner fetch error:", err);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchParcels();
@@ -176,9 +192,9 @@ const LandOwnerDashboard = ({ showToast }) => {
             <TileLayer
               url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
             />
-            {parcels.map(p => (
+            {parcels.filter(p => Array.isArray(p.coordinates) && p.coordinates.length >= 3).map((p, idx) => (
               <Polygon 
-                key={p.id}
+                key={p.parcel_id || p.id || idx}
                 positions={p.coordinates}
                 pathOptions={{ 
                   color: p.status === 'Verified' ? '#059669' : '#d4af37',

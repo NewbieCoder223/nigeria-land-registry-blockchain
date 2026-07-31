@@ -51,9 +51,11 @@ const GISMap = ({ parcels = [], center = [9.082, 8.6753], zoom = 6, interactive 
           url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
         />
 
-        {parcels.map((parcel) => (
+        {parcels
+          .filter(parcel => Array.isArray(parcel.coordinates) && parcel.coordinates.length >= 3)
+          .map((parcel, idx) => (
           <Polygon
-            key={parcel.parcel_id}
+            key={parcel.parcel_id || idx}
             positions={parcel.coordinates}
             pathOptions={{
               color: getStatusColor(parcel.status),

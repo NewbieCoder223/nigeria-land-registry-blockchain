@@ -27,23 +27,25 @@ const VerifierDashboard = ({ showToast }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchData = async () => {
-    if (!isConnected || !address) {
-      setIsLoading(false);
-      return;
-    }
     setIsLoading(true);
+    try {
+      if (isConnected && address) {
+        // Fetch transfers that have passed Surveyor but not Verifier
+        const { data: transfers, error } = await supabase
+          .from('transfers')
+          .select('*, parcels (*)')
+          .eq('status', 'SurveyorVerified')
+          .eq('verifier_approved', false);
 
-    // Fetch transfers that have passed Surveyor but not Verifier
-    const { data: transfers, error } = await supabase
-      .from('transfers')
-      .select('*, parcels (*)')
-      .eq('status', 'SurveyorVerified')
-      .eq('verifier_approved', false);
-
-    if (!error && transfers) {
-      setAuditQueue(transfers);
+        if (!error && transfers) {
+          setAuditQueue(transfers);
+        }
+      }
+    } catch (err) {
+      console.error("Verifier fetch error:", err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {

@@ -31,43 +31,60 @@ const SurveyorDashboard = ({ showToast }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchData = async () => {
-    if (!isConnected || !address) {
-      setIsLoading(false);
-      return;
-    }
     setIsLoading(true);
-    // 1. Fetch pending transfers for survey verification
-    const { data: transfers, error: transferError } = await supabase
-      .from('transfers')
-      .select(`
-        *,
-        parcels (*)
-      `)
-      .eq('surveyor_approved', false)
-      .eq('status', 'Initiated');
+    try {
+      if (isConnected && address) {
+        // 1. Fetch pending transfers for survey verification
+        const { data: transfers, error: transferError } = await supabase
+          .from('transfers')
+          .select('*, parcels (*)')
+          .eq('surveyor_approved', false)
+          .eq('status', 'Initiated');
 
-    if (!transferError && transfers) {
-      setPendingRequests(transfers.map(t => ({
-        ...t,
-        parcel: {
-          ...t.parcels,
-          coordinates: typeof t.parcels.gps_coordinates === 'string' ? JSON.parse(t.parcels.gps_coordinates) : t.parcels.gps_coordinates
+        if (!transferError && transfers) {
+          setPendingRequests(transfers.map(t => {
+            let coords = [];
+            if (t.parcels?.gps_coordinates) {
+              try {
+                coords = typeof t.parcels.gps_coordinates === 'string' ? JSON.parse(t.parcels.gps_coordinates) : t.parcels.gps_coordinates;
+              } catch (e) {
+                coords = [];
+              }
+            }
+            return {
+              ...t,
+              parcel: {
+                ...t.parcels,
+                coordinates: Array.isArray(coords) ? coords : []
+              }
+            };
+          }));
         }
-      })));
-    }
 
-    // 2. Fetch all parcels for map visualization
-    const { data: parcels, error: parcelError } = await supabase
-      .from('parcels')
-      .select('*');
-
-    if (!parcelError && parcels) {
-      setAllParcels(parcels.map(p => ({
-        ...p,
-        coordinates: typeof p.gps_coordinates === 'string' ? JSON.parse(p.gps_coordinates) : p.gps_coordinates
-      })));
+        // 2. Fetch all parcels for map visualization
+        const { data: parcels, error: parcelError } = await supabase.from('parcels').select('*');
+        if (!parcelError && parcels) {
+          setAllParcels(parcels.map(p => {
+            let coords = [];
+            if (p.gps_coordinates) {
+              try {
+                coords = typeof p.gps_coordinates === 'string' ? JSON.parse(p.gps_coordinates) : p.gps_coordinates;
+              } catch (e) {
+                coords = [];
+              }
+            }
+            return {
+              ...p,
+              coordinates: Array.isArray(coords) ? coords : []
+            };
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Surveyor fetch error:", err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -226,9 +243,9 @@ const SurveyorDashboard = ({ showToast }) => {
                <div className="absolute bottom-6 left-6 flex flex-col gap-2 z-[1000]">
                   <div className="glass-card bg-reg-black/80 px-4 py-3 space-y-1">
                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Selected Node</p>
-                     <p className="text-[11px] font-mono text-teal-400 uppercase">
-                        {pendingRequests[0]?.parcel?.coordinates?.[0]?.[0].toFixed(4) || 'N/A'} N | {pendingRequests[0]?.parcel?.coordinates?.[0]?.[1].toFixed(4) || 'N/A'} E
-                     </p>
+                      <p className="text-[11px] font-mono text-teal-400 uppercase">
+                         {typeof pendingRequests[0]?.parcel?.coordinates?.[0]?.[0] === 'number' ? pendingRequests[0].parcel.coordinates[0][0].toFixed(4) : '4.8997'} N | {typeof pendingRequests[0]?.parcel?.coordinates?.[0]?.[1] === 'number' ? pendingRequests[0].parcel.coordinates[0][1].toFixed(4) : '7.0347'} E
+                      </p>
                   </div>
                </div>
             </div>
