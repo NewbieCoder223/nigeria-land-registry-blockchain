@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom'
+import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import { motion, AnimatePresence } from 'framer-motion'
