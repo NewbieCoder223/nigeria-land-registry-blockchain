@@ -46,6 +46,8 @@ const LandRegistrationForm = () => {
     ipfsHash: ''
   })
 
+  const [txHash, setTxHash] = useState(null)
+
   // 1. Fetch Registration Fee from Contract
   const { data: regFee } = useReadContract({
     address: LAND_REGISTRY_ADDRESS,
@@ -57,8 +59,9 @@ const LandRegistrationForm = () => {
   const { writeContractAsync, data: hash, isPending: isSigning } = useWriteContract()
 
   // 3. Transaction Monitor
+  const activeHash = txHash || hash
   const { isLoading: isMinting, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+    hash: activeHash,
   })
 
   useEffect(() => {
@@ -143,7 +146,7 @@ const LandRegistrationForm = () => {
       const gpsString = JSON.stringify(formData.coordinates)
       
       // ADVERSARIAL FIX: use await writeContractAsync to catch user rejection
-      await writeContractAsync({
+      const submittedHash = await writeContractAsync({
         address: LAND_REGISTRY_ADDRESS,
         abi: LAND_REGISTRY_ABI,
         functionName: 'registerLand',
@@ -155,6 +158,9 @@ const LandRegistrationForm = () => {
         ],
         value: regFee || parseEther('0.01'),
       })
+      if (submittedHash) {
+        setTxHash(submittedHash)
+      }
 
       setProcessStatus('minting')
     } catch (err) {
