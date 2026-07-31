@@ -89,12 +89,12 @@ const VerifierDashboard = ({ showToast }) => {
   }
 
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && processingId) {
+      supabase.table('transfers').update({ verifier_approved: true, status: 'LegallyValidated' }).eq('parcel_id', processingId).then(() => {});
       setAuditQueue(prev => prev.filter(r => (r.parcel_id || r.parcelId) !== processingId))
       setProcessingId(null)
       setTxHash(null)
       showToast('Legal compliance attested successfully')
-      fetchData()
     }
   }, [isConfirmed, processingId])
 

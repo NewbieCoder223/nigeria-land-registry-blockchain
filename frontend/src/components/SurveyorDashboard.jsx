@@ -95,13 +95,14 @@ const SurveyorDashboard = ({ showToast }) => {
 
   // Cleanup on success
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && processingId) {
+      supabase.table('transfers').update({ surveyor_approved: true, status: 'SurveyorVerified' }).eq('parcel_id', processingId).then(() => {});
+      setPendingRequests(prev => prev.filter(r => (r.parcel_id || r.parcelId) !== processingId))
       setProcessingId(null)
       setTxHash(null)
       showToast('Verification successfully recorded on-chain')
-      fetchData()
     }
-  }, [isConfirmed])
+  }, [isConfirmed, processingId])
 
   // Handlers
   const handleVerify = async (parcelId) => {

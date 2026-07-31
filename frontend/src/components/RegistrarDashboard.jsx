@@ -99,13 +99,15 @@ const RegistrarDashboard = ({ showToast }) => {
   }
 
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && processingId) {
+      supabase.table('transfers').update({ registrar_approved: true, status: 'Completed' }).eq('parcel_id', processingId).then(() => {});
+      supabase.table('parcels').update({ status: 'Active' }).eq('parcel_id', processingId).then(() => {});
+      setPendingDeeds(prev => prev.filter(r => (r.parcel_id || r.parcelId) !== processingId))
       setProcessingId(null)
       setTxHash(null)
       showToast('Title Deed & Ownership Transfer finalized on-chain')
-      fetchData()
     }
-  }, [isConfirmed])
+  }, [isConfirmed, processingId])
 
   return (
     <div className="p-8 space-y-10 max-w-[1600px] mx-auto overflow-y-auto h-full">
