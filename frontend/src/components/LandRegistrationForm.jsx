@@ -11,9 +11,10 @@ import {
   ShieldCheck,
   Loader2,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  Search
 } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, Polygon, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polygon, useMapEvents, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { 
   useWriteContract, 
@@ -47,6 +48,44 @@ const LandRegistrationForm = () => {
   })
 
   const [txHash, setTxHash] = useState(null)
+  const [searchLocation, setSearchLocation] = useState('')
+  const [isSearchingLoc, setIsSearchingLoc] = useState(false)
+  const [mapCenter, setMapCenter] = useState([9.082, 8.675])
+  const [mapZoom, setMapZoom] = useState(6)
+
+  const handleSearchLocation = async (e) => {
+    if (e) e.preventDefault();
+    if (!searchLocation.trim()) return;
+    setIsSearchingLoc(true);
+    setError(null);
+    try {
+      const res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchLocation + ', Nigeria')}`);
+      if (res.data && res.data.length > 0) {
+        const lat = parseFloat(res.data[0].lat);
+        const lon = parseFloat(res.data[0].lon);
+        const newCenter = [lat, lon];
+        setMapCenter(newCenter);
+        setMapZoom(16);
+        
+        // Auto-generate 4 boundary corners (~1,250 SQM square plot centered on location)
+        const offset = 0.0012;
+        const autoPolygon = [
+          [lat + offset, lon - offset],
+          [lat + offset, lon + offset],
+          [lat - offset, lon + offset],
+          [lat - offset, lon - offset],
+        ];
+        setFormData(d => ({ ...d, coordinates: autoPolygon }));
+      } else {
+        setError("Location not found. Please try a landmark, street, or city name in Nigeria.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Geocoding service unavailable. You can click on the map manually.");
+    } finally {
+      setIsSearchingLoc(false);
+    }
+  };
 
   // 1. Fetch Registration Fee from Contract
   const { data: regFee } = useReadContract({
@@ -280,19 +319,43 @@ const LandRegistrationForm = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="flex flex-col h-[600px]"
+              className="flex flex-col h-[650px]"
             >
-              <div className="p-8 pb-4">
-                 <div className="flex items-center gap-3 mb-2">
-                    <MapPin className="w-6 h-6 text-nigeria-green" />
-                    <h3 className="text-xl font-bold text-white uppercase italic tracking-tight">Geospatial Boundaries</h3>
+              <div className="p-6 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                 <div>
+                    <div className="flex items-center gap-3 mb-1">
+                       <MapPin className="w-6 h-6 text-nigeria-green" />
+                       <h3 className="text-xl font-bold text-white uppercase italic tracking-tight">Geospatial Boundaries</h3>
+                    </div>
+                    <p className="text-xs text-white/40 uppercase tracking-widest">Type your property address or click on the map corners.</p>
                  </div>
-                 <p className="text-xs text-white/40 uppercase tracking-widest">Click on the map to define the corners of your parcel.</p>
+
+                 {/* 🔍 Auto-Geocoding Search Bar */}
+                 <form onSubmit={handleSearchLocation} className="flex gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-80">
+                      <Search className="w-4 h-4 text-white/40 absolute left-3 top-3" />
+                      <input 
+                        type="text" 
+                        placeholder="e.g. Maitama Abuja or Ikeja Lagos" 
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-nigeria-green"
+                      />
+                    </div>
+                    <button 
+                      type="submit"
+                      disabled={isSearchingLoc}
+                      className="px-4 py-2 bg-nigeria-green text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all flex items-center gap-1 flex-shrink-0 disabled:opacity-50"
+                    >
+                      {isSearchingLoc ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Auto-Map'}
+                    </button>
+                 </form>
               </div>
               
               <div className="flex-1 bg-reg-black/40 relative">
-                 <MapContainer center={[9.082, 8.675]} zoom={6} className="w-full h-full grayscale brightness-50 z-0">
+                 <MapContainer center={mapCenter} zoom={mapZoom} className="w-full h-full grayscale brightness-50 z-0">
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <MapController center={mapCenter} zoom={mapZoom} />
                     <MapEventsHandler onMapClick={(pos) => setFormData(d => ({ ...d, coordinates: [...d.coordinates, pos] }))} />
                     {formData.coordinates.length > 0 && (
                         <>
@@ -463,6 +526,16 @@ const MapEventsHandler = ({ onMapClick }) => {
   useMapEvents({
     click: (e) => onMapClick([e.latlng.lat, e.latlng.lng]),
   })
+  return null
+}
+
+const MapController = ({ center, zoom }) => {
+  const map = useMap()
+  useEffect(() => {
+    if (center) {
+      map.setView(center, zoom || 16)
+    }
+  }, [center, zoom, map])
   return null
 }
 
