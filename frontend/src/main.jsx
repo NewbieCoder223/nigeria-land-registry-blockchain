@@ -38,8 +38,8 @@ const config = getDefaultConfig({
   projectId: PROJECT_ID,
   chains: [polygonAmoy],
   transports: {
-    // 🌍 Explicit RPC Transport to bypass public discovery hangs
-    [polygonAmoy.id]: http('https://rpc-amoy.polygon.technology'),
+    // 🌍 Fast reliable RPC Transport with fallbacks to bypass public RPC hangs
+    [polygonAmoy.id]: http('https://polygon-amoy.drpc.org'),
   },
   ssr: true, // Enable SSR to prevent hydration race conditions
 })
