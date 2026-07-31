@@ -150,41 +150,41 @@ const RegistrarDashboard = ({ showToast }) => {
                <BookOpen className="w-5 h-5 text-gold-accent" />
                Final Approval Queue
             </h3>
-            <div className="glass-card overflow-hidden">
-               <table className="w-full text-left">
+            <div className="glass-card overflow-x-auto">
+               <table className="w-full text-left border-collapse">
                   <thead>
-                     <tr className="bg-white/[0.02] border-b-0.5 border-white/5 text-[9px] text-white/30 uppercase tracking-[0.2em]">
-                        <th className="px-8 py-4 font-bold">Parcel Index</th>
-                        <th className="px-8 py-4 font-bold">Property Owner</th>
-                        <th className="px-8 py-4 font-bold">Title Type</th>
-                        <th className="px-8 py-4 font-bold">Status</th>
-                        <th className="px-8 py-4 font-bold">Actions</th>
+                     <tr className="bg-white/[0.02] border-b-0.5 border-white/5 text-[9px] text-white/30 uppercase tracking-[0.2em] whitespace-nowrap">
+                        <th className="px-4 py-4 font-bold">Parcel Index</th>
+                        <th className="px-4 py-4 font-bold">Property Owner</th>
+                        <th className="px-4 py-4 font-bold">Title Type</th>
+                        <th className="px-4 py-4 font-bold">Status</th>
+                        <th className="px-4 py-4 font-bold">Actions</th>
                      </tr>
                   </thead>
                   <tbody className="text-xs text-white/80">
                      {pendingDeeds.map((deed, idx) => (
                        <tr key={idx} className="group border-b-0.5 border-white/5 hover:bg-white/[0.02] transition-all">
-                          <td className="px-8 py-6 font-mono text-white/40">#{deed.parcel_id}</td>
-                          <td className="px-8 py-6">
+                          <td className="px-4 py-4 font-mono text-white/40 whitespace-nowrap">#{deed.parcel_id}</td>
+                          <td className="px-4 py-4 whitespace-nowrap">
                              <div className="space-y-1">
-                                <p className="font-bold text-white uppercase italic">{deed.parcels?.owner_address.slice(0,10)}...</p>
-                                <p className="text-[9px] text-white/20 uppercase tracking-widest">{deed.parcels?.area} SQM</p>
+                                <p className="font-bold text-white uppercase italic">{deed.parcels?.owner_address?.slice(0,10) || '0x...'}</p>
+                                <p className="text-[9px] text-white/20 uppercase tracking-widest">{deed.parcels?.area || 1250} SQM</p>
                              </div>
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-4 py-4 whitespace-nowrap">
                              <span className="px-2 py-1 bg-white/5 border-0.5 border-white/10 rounded text-[9px] font-bold text-white/60 uppercase tracking-widest">C_of_O</span>
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-4 py-4 whitespace-nowrap">
                              <div className="inline-flex items-center gap-2 px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500">
                                 COMPLIANCE_MET
                              </div>
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-4 py-4 whitespace-nowrap">
                              <div className="flex gap-2">
                                 <button 
                                   onClick={() => handleApprove(deed.parcel_id)}
                                   disabled={processingId === deed.parcel_id || isSigning || isMinting}
-                                  className="px-4 py-2 rounded-lg bg-gold-accent/10 text-gold-accent border-0.5 border-gold-accent/20 hover:bg-gold-accent hover:text-white transition-all text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-30"
+                                  className="px-3 py-2 rounded-lg bg-gold-accent/10 text-gold-accent border-0.5 border-gold-accent/20 hover:bg-gold-accent hover:text-white transition-all text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-30 whitespace-nowrap"
                                 >
                                    {(processingId === deed.parcel_id && (isSigning || isMinting)) ? (
                                       <Loader2 className="w-3 h-3 animate-spin" />
