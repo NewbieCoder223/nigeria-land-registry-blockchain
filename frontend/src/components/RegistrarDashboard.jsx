@@ -35,21 +35,23 @@ const RegistrarDashboard = ({ showToast }) => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch pending transfers or pending parcels
+      // 1. Fetch unapproved pending transfers
       const { data: transfers } = await supabase
         .from('transfers')
-        .select('*, parcels (*)');
+        .select('*, parcels (*)')
+        .eq('registrar_approved', false);
 
       const { data: allParcels } = await supabase
         .from('parcels')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // If pending transfers exist, show them; otherwise map registered parcels into the queue
+      // Pending queue gets unapproved transfers or parcels not yet Active/Verified
       if (transfers && transfers.length > 0) {
         setPendingDeeds(transfers);
-      } else if (allParcels && allParcels.length > 0) {
-        setPendingDeeds(allParcels.map(p => ({
+      } else if (allParcels) {
+        const unapprovedParcels = allParcels.filter(p => p.status !== 'Active' && p.status !== 'Verified' && p.status !== 'SEALED');
+        setPendingDeeds(unapprovedParcels.map(p => ({
           parcel_id: p.parcel_id,
           parcels: p,
           status: 'LegallyValidated'
@@ -58,15 +60,18 @@ const RegistrarDashboard = ({ showToast }) => {
         setPendingDeeds([]);
       }
 
-      setApprovedDeeds(allParcels || []);
+      // Approved History gets active / sealed / verified parcels
+      const approvedParcels = allParcels ? allParcels.filter(p => p.status === 'Active' || p.status === 'Verified' || p.status === 'SEALED' || p.status === 'Completed') : [];
+      setApprovedDeeds(approvedParcels.length > 0 ? approvedParcels : (allParcels || []));
 
       // 3. Fetch accurate registry stats
       const totalParcelsCount = allParcels?.length || 0;
+      const approvedCount = approvedParcels.length || totalParcelsCount;
       const transferCount = transfers?.length || 0;
       
       setCounts({
-        issued: totalParcelsCount,
-        rofo: Math.floor(totalParcelsCount * 0.3),
+        issued: approvedCount,
+        rofo: Math.floor(approvedCount * 0.3),
         transfers: transferCount
       });
     } catch (err) {
