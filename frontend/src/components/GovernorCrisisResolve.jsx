@@ -117,8 +117,14 @@ const GovernorCrisisResolve = ({ showToast }) => {
     );
   }
 
-  const lagosCases = disputes.length > 0 ? disputes.length * 12 : 14;
-  const abujaCases = disputes.length > 0 ? disputes.length * 8 : 8;
+  const totalDisputes = disputes.length;
+  const lagosCases = disputes.filter(d => (d.location || '').toLowerCase().includes('lagos')).length;
+  const abujaCases = disputes.filter(d => (d.location || '').toLowerCase().includes('abuja')).length;
+  const riversCases = disputes.filter(d => (d.location || '').toLowerCase().includes('rivers')).length;
+  const kanoCases = disputes.filter(d => (d.location || '').toLowerCase().includes('kano')).length;
+  const otherCases = totalDisputes - (lagosCases + abujaCases + riversCases + kanoCases);
+
+  const vulnerabilityScore = totalDisputes > 5 ? 'HIGH' : totalDisputes > 0 ? 'MODERATE' : 'LOW';
 
   return (
     <motion.div 
@@ -170,7 +176,7 @@ const GovernorCrisisResolve = ({ showToast }) => {
                <div className="flex gap-4">
                   <div className="flex items-center gap-2">
                      <div className="w-2 h-2 rounded-full bg-rose-500" />
-                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Active Litigate ({disputes.length})</span>
+                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Active Litigate ({totalDisputes})</span>
                   </div>
                </div>
             </div>
@@ -180,8 +186,9 @@ const GovernorCrisisResolve = ({ showToast }) => {
                   {[
                     { state: 'Lagos Metropolis', count: lagosCases },
                     { state: 'Abuja (FCT)', count: abujaCases },
-                    { state: 'Rivers State', count: Math.max(2, Math.floor(lagosCases / 2)) },
-                    { state: 'Kano Central', count: Math.max(1, Math.floor(lagosCases / 3)) }
+                    { state: 'Rivers State', count: riversCases },
+                    { state: 'Kano Central', count: kanoCases },
+                    ...(otherCases > 0 ? [{ state: 'Other Regions', count: otherCases }] : [])
                   ].map(r => (
                      <div key={r.state} className="space-y-2 group">
                         <div className="flex justify-between items-center px-1">
@@ -191,7 +198,7 @@ const GovernorCrisisResolve = ({ showToast }) => {
                         <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                            <motion.div 
                              initial={{ width: 0 }}
-                             animate={{ width: `${Math.min(100, (r.count / 50) * 100)}%` }}
+                             animate={{ width: `${totalDisputes > 0 ? (r.count / totalDisputes) * 100 : 0}%` }}
                              className="h-full bg-gradient-to-r from-rose-500/20 to-rose-500"
                            />
                         </div>
@@ -205,9 +212,11 @@ const GovernorCrisisResolve = ({ showToast }) => {
                      <span className="text-xs font-bold text-rose-500 uppercase tracking-widest leading-none">Vulnerability Score</span>
                   </div>
                   <div className="flex justify-center py-4">
-                     <span className="text-5xl font-black text-white italic tracking-tighter">{disputes.length > 2 ? 'HIGH' : 'MODERATE'}</span>
+                     <span className="text-5xl font-black text-white italic tracking-tighter">{vulnerabilityScore}</span>
                   </div>
-                  <p className="text-xs text-white/40 font-bold uppercase leading-relaxed text-center tracking-widest italic">System recommendation: Review Gazetted Land in Ibeju-Lekki.</p>
+                  <p className="text-xs text-white/40 font-bold uppercase leading-relaxed text-center tracking-widest italic">
+                    {totalDisputes > 0 ? `Active conflict detected across ${totalDisputes} parcel(s).` : 'Zero active land conflicts detected across state database.'}
+                  </p>
                </div>
             </div>
          </div>
