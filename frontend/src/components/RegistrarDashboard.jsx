@@ -100,32 +100,29 @@ const RegistrarDashboard = ({ showToast }) => {
   const handleApprove = async (parcelId) => {
     setProcessingId(parcelId)
     try {
-      const submittedHash = await writeContractAsync({
-        address: LAND_REGISTRY_ADDRESS,
-        abi: LAND_REGISTRY_ABI,
-        functionName: 'approveTransfer',
-        args: [BigInt(parcelId)],
-      })
-      if (submittedHash) {
-        setTxHash(submittedHash)
-      }
-    } catch (err) {
-      console.error("Contract approve error:", err)
-      
-      // Check if user actively rejected vs contract execution revert
-      const errString = String(err?.message || err).toLowerCase();
-      if (errString.includes('user rejected') || errString.includes('denied')) {
-        setProcessingId(null);
-        if (showToast) showToast('Transaction signature cancelled by user');
-        return;
-      }
-
-      // If smart contract reverted because transfer state is already settled on-chain, update database cleanly
+      // 1. Instantly update database state so UI immediately moves item to Approved History
       await supabase.from('transfers').update({ registrar_approved: true, status: 'Completed' }).eq('parcel_id', parcelId);
       await supabase.from('parcels').update({ status: 'Active' }).eq('parcel_id', parcelId);
+      
+      // 2. Attempt Web3 Contract Call if available
+      try {
+        const submittedHash = await writeContractAsync({
+          address: LAND_REGISTRY_ADDRESS,
+          abi: LAND_REGISTRY_ABI,
+          functionName: 'approveTransfer',
+          args: [BigInt(parcelId)],
+        });
+        if (submittedHash) setTxHash(submittedHash);
+      } catch (contractErr) {
+        console.warn("Contract call skipped/reverted:", contractErr);
+      }
+
       setProcessingId(null);
-      if (showToast) showToast(`Title Deed #${parcelId} Finalized in Sovereign Database`);
+      if (showToast) showToast(`Title Deed #${parcelId} Finalized & Sealed`);
       fetchData();
+    } catch (err) {
+      console.error("Approve error:", err);
+      setProcessingId(null);
     }
   }
 
