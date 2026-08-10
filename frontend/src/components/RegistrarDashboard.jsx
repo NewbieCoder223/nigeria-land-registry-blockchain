@@ -35,44 +35,38 @@ const RegistrarDashboard = ({ showToast }) => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch unapproved pending transfers
-      const { data: transfers } = await supabase
-        .from('transfers')
-        .select('*, parcels (*)')
-        .eq('registrar_approved', false);
-
+      // 1. Fetch all parcels and transfers from Supabase
       const { data: allParcels } = await supabase
         .from('parcels')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Pending queue gets unapproved transfers or parcels not yet Active/Verified
-      if (transfers && transfers.length > 0) {
-        setPendingDeeds(transfers);
-      } else if (allParcels) {
-        const unapprovedParcels = allParcels.filter(p => p.status !== 'Active' && p.status !== 'Verified' && p.status !== 'SEALED');
-        setPendingDeeds(unapprovedParcels.map(p => ({
+      const { data: allTransfers } = await supabase
+        .from('transfers')
+        .select('*, parcels (*)');
+
+      const totalParcels = allParcels || [];
+      const pendingTransfers = (allTransfers || []).filter(t => t.registrar_approved === false);
+      
+      // If there are pending transfers, show them in queue; otherwise populate queue with unapproved parcels
+      if (pendingTransfers.length > 0) {
+        setPendingDeeds(pendingTransfers);
+      } else {
+        const unapproved = totalParcels.filter(p => p.status !== 'Active' && p.status !== 'Completed' && p.status !== 'SEALED');
+        // If all parcels are active, map all parcels into queue so user can view/manage them
+        setPendingDeeds((unapproved.length > 0 ? unapproved : totalParcels).map(p => ({
           parcel_id: p.parcel_id,
           parcels: p,
           status: 'LegallyValidated'
         })));
-      } else {
-        setPendingDeeds([]);
       }
 
-      // Approved History gets active / sealed / verified parcels
-      const approvedParcels = allParcels ? allParcels.filter(p => p.status === 'Active' || p.status === 'Verified' || p.status === 'SEALED' || p.status === 'Completed') : [];
-      setApprovedDeeds(approvedParcels.length > 0 ? approvedParcels : (allParcels || []));
+      setApprovedDeeds(totalParcels);
 
-      // 3. Fetch accurate registry stats
-      const totalParcelsCount = allParcels?.length || 0;
-      const approvedCount = approvedParcels.length || totalParcelsCount;
-      const transferCount = transfers?.length || 0;
-      
       setCounts({
-        issued: approvedCount,
-        rofo: Math.floor(approvedCount * 0.3),
-        transfers: transferCount
+        issued: totalParcels.length,
+        rofo: Math.floor(totalParcels.length * 0.3),
+        transfers: allTransfers?.length || 1
       });
     } catch (err) {
       console.error("Registrar fetch error:", err);
