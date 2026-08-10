@@ -115,9 +115,35 @@ const LandRegistrationForm = () => {
       [lat - offset, lon - offset],
     ];
 
+    // Calculate actual land area in SQM using Shoelace formula with Earth radius (~111,000 meters per degree lat/lon)
+    const calculateRealAreaSqm = (coords) => {
+      if (!Array.isArray(coords) || coords.length < 3) return 1250;
+      let area = 0;
+      const R = 6378137; // Earth's radius in meters
+      const radians = (deg) => (deg * Math.PI) / 180;
+      
+      for (let i = 0; i < coords.length; i++) {
+        const p1 = coords[i];
+        const p2 = coords[(i + 1) % coords.length];
+        const lat1 = radians(p1[0]);
+        const lat2 = radians(p2[0]);
+        const lon1 = radians(p1[1]);
+        const lon2 = radians(p2[1]);
+        area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+      }
+      area = Math.abs((area * R * R) / 2);
+      return Math.round(area);
+    };
+
+    const computedArea = calculateRealAreaSqm(autoPolygon);
+
     setMapCenter([lat, lon]);
     setMapZoom(16);
-    setFormData(d => ({ ...d, coordinates: autoPolygon }));
+    setFormData(d => ({ 
+      ...d, 
+      coordinates: autoPolygon,
+      area: String(computedArea || 1250)
+    }));
     setIsSearchingLoc(false);
   };
 
