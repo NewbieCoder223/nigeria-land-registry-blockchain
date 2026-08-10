@@ -65,6 +65,24 @@ const NationalLedger = ({ showToast }) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    fetchLedgerData();
+
+    const channel = supabase
+      .channel('ledger-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'parcels' }, () => fetchLedgerData())
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, [totalParcels]);
+
+  const stats = [
+    { label: 'Sovereign Parcels', value: ledgerStats.parcels.toLocaleString(), change: '+Active', icon: ShieldCheck },
+    { label: 'Transactions (All Time)', value: ledgerStats.transfers.toLocaleString(), change: 'Verified', icon: Zap },
+    { label: 'Growth Velocity', value: ledgerStats.growth, change: '+1.1%', icon: TrendingUp },
+    { label: 'Network Shards', value: ledgerStats.shards, change: 'Stable', icon: Activity }
+  ];
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
