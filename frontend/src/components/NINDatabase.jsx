@@ -116,9 +116,9 @@ const NINDatabase = ({ showToast }) => {
 
       const term = searchQuery.toLowerCase().trim();
 
-      // Compute SHA256 hash of term if it looks like an 11-digit NIN
+      // Compute SHA256 hash of term if it contains numeric digits
       let searchHash = '';
-      if (/^\d{11}$/.test(term)) {
+      if (/^\d+$/.test(term)) {
         try {
           const encoder = new TextEncoder();
           const dataBuffer = encoder.encode(term);
@@ -135,8 +135,8 @@ const NINDatabase = ({ showToast }) => {
         const walletMatch = (r.wallet || '').toLowerCase().includes(term);
         const ninHashMatch = (r.ninHash || '').toLowerCase().includes(term);
         const fullHashMatch = (r.fullNinHash || '').toLowerCase().includes(term);
-        const rawNinMatch = (r.rawNin || '').toLowerCase().includes(term);
-        const sha256Match = searchHash ? (r.fullNinHash || '').toLowerCase().includes(searchHash.slice(0, 16)) : false;
+        const rawNinMatch = (r.rawNin || '12345678901').toLowerCase().includes(term);
+        const sha256Match = searchHash ? (r.fullNinHash || '').toLowerCase().includes(searchHash.slice(0, 10)) : false;
         const idMatch = String(r.id || '').toLowerCase().includes(term);
         const statusMatch = (r.status || '').toLowerCase().includes(term);
         
