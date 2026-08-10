@@ -111,12 +111,8 @@ const RegistrarDashboard = ({ showToast }) => {
       }
     } catch (err) {
       console.error("Contract approve error:", err)
-      // Fallback update in case of local testnet override
-      await supabase.from('transfers').update({ registrar_approved: true, status: 'Completed' }).eq('parcel_id', parcelId);
-      await supabase.from('parcels').update({ status: 'Active' }).eq('parcel_id', parcelId);
-      if (showToast) showToast(`Title Deed #${parcelId} Approved & Finalized in Database`);
-      fetchData();
       setProcessingId(null)
+      if (showToast) showToast('Transaction rejected by user or gas estimation failed')
     }
   }
 
