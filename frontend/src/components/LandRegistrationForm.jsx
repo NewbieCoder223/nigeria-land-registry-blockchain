@@ -300,15 +300,19 @@ const LandRegistrationForm = () => {
                     value={formData.nin}
                     onChange={(e) => setFormData({...formData, nin: e.target.value})}
                 />
-                <div className="md:col-span-2">
-                   <InputField 
-                     label="Beneficiary Wallet Address" 
-                     placeholder="0x..." 
-                     value={formData.walletAddress}
-                     onChange={(e) => setFormData({...formData, walletAddress: e.target.value})}
-                   />
-                   <p className="text-[10px] text-white/20 mt-2 uppercase tracking-tighter">This address will be assigned the immutable NFT title deed.</p>
-                </div>
+                <InputField 
+                    label="Date of Birth (DOB)" 
+                    type="date"
+                    placeholder="YYYY-MM-DD" 
+                    value={formData.dob}
+                    onChange={(e) => setFormData({...formData, dob: e.target.value})}
+                />
+                <InputField 
+                    label="Beneficiary Wallet Address" 
+                    placeholder="0x..." 
+                    value={formData.walletAddress}
+                    onChange={(e) => setFormData({...formData, walletAddress: e.target.value})}
+                />
               </div>
             </motion.div>
           )}
@@ -502,11 +506,11 @@ const LandRegistrationForm = () => {
   )
 }
 
-const InputField = ({ label, placeholder, value, onChange }) => (
+const InputField = ({ label, placeholder, value, onChange, type = 'text' }) => (
   <div className="space-y-2">
     <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">{label}</label>
     <input 
-      type="text" 
+      type={type} 
       placeholder={placeholder}
       value={value}
       onChange={onChange}

@@ -27,10 +27,54 @@ const LandOwnerDisputes = () => {
   const [reason, setReason] = useState('');
   const [error, setError] = useState(null);
 
-  // 1. Mock Cases (Fetch via Backend /api/disputes in prod)
-  const [myCases, setMyCases] = useState([
-    { id: 'DISP-L-001', parcelId: '1', type: 'Boundary Encroachment', status: 'LITIGATION_LOCKED', date: 'April 02, 2026' }
-  ]);
+  // 1. Live Cases & User Parcels from Supabase
+  const [myCases, setMyCases] = useState([]);
+  const [userParcels, setUserParcels] = useState([]);
+  const [isLoadingCases, setIsLoadingCases] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingCases(true);
+      if (address) {
+        // Fetch User's Parcels for the dropdown selector
+        const { data: parcelData } = await supabase
+          .from('parcels')
+          .select('parcel_id, ipfs_hash, status')
+          .eq('owner_address', address.toLowerCase());
+        
+        if (parcelData) {
+          setUserParcels(parcelData);
+          if (parcelData.length > 0) {
+            setParcelId(String(parcelData[0].parcel_id));
+          }
+        }
+
+        // Fetch user disputes
+        const { data: disputeData } = await supabase
+          .from('disputes')
+          .select('*')
+          .eq('claimant', address.toLowerCase());
+        
+        if (disputeData) {
+          setMyCases(disputeData.map(d => ({
+            id: `DISP-L-00${d.id || d.parcel_id}`,
+            parcelId: String(d.parcel_id),
+            type: d.reason || 'Title Dispute',
+            status: d.status || 'PENDING_GOVERNOR_REVIEW',
+            date: d.created_at ? new Date(d.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recent'
+          })));
+        } else {
+          setMyCases([]);
+        }
+      } else {
+        setUserParcels([]);
+        setMyCases([]);
+      }
+      setIsLoadingCases(false);
+    };
+
+    fetchData();
+  }, [address]);
 
   // 2. Blockchain Write Hook
   const { writeContractAsync, data: hash, isPending: isSigning } = useWriteContract();
@@ -47,14 +91,8 @@ const LandOwnerDisputes = () => {
     hash,
   });
 
-  useEffect(() => {
-    if (isConfirmed) {
-      setProcessingId(null)
-    }
-  }, [isConfirmed]);
-
   const handleFileDispute = async () => {
-    if (!parcelId) return setError("Please enter/select a Parcel ID.");
+    if (!parcelId) return setError("Please select or enter a Parcel ID.");
     if (!reason) return setError("Please provide a legal reason for the dispute.");
 
     setError(null);
@@ -75,9 +113,7 @@ const LandOwnerDisputes = () => {
   useEffect(() => {
     if (isConfirmed) {
       setIsModalOpen(false);
-      setParcelId('');
       setReason('');
-      // In real app, we'd refetch
     }
   }, [isConfirmed]);
 
@@ -202,14 +238,28 @@ const LandOwnerDisputes = () => {
 
                 <div className="space-y-6">
                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Asset Index / Parcel ID</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. 1" 
-                        value={parcelId}
-                        onChange={(e) => setParcelId(e.target.value)}
-                        className="w-full bg-reg-black/40 border-0.5 border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-rose-500/30 transition-all font-medium font-mono"
-                      />
+                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Select Target Parcel ID</label>
+                      {userParcels.length > 0 ? (
+                        <select 
+                          value={parcelId}
+                          onChange={(e) => setParcelId(e.target.value)}
+                          className="w-full bg-reg-black/80 border-0.5 border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-rose-500/30 transition-all font-medium font-mono"
+                        >
+                          {userParcels.map(p => (
+                            <option key={p.parcel_id} value={p.parcel_id} className="bg-reg-black text-white">
+                              Parcel #{p.parcel_id} — (Status: {p.status || 'Active'})
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input 
+                          type="text" 
+                          placeholder="Enter Parcel ID (e.g. 1)" 
+                          value={parcelId}
+                          onChange={(e) => setParcelId(e.target.value)}
+                          className="w-full bg-reg-black/40 border-0.5 border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-rose-500/30 transition-all font-medium font-mono"
+                        />
+                      )}
                    </div>
                    <div className="space-y-2">
                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Legal Reason / Complaint</label>

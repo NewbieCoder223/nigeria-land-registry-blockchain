@@ -202,28 +202,28 @@ function App() {
                 element={!showApp ? <LandingPage /> : <Navigate to="/dashboard" />} 
               />
               
-              {/* Core Dashboards */}
-              <Route path="/dashboard" element={<LandOwnerDashboard showToast={showToast} />} />
-              <Route path="/governor" element={<GovernorDashboard showToast={showToast} />} />
-              <Route path="/surveyor" element={<SurveyorDashboard showToast={showToast} />} />
-              <Route path="/verifier" element={<VerifierDashboard showToast={showToast} />} />
-              <Route path="/registrar" element={<RegistrarDashboard showToast={showToast} />} />
+              {/* Core Dashboards - Protected by Wallet Connection */}
+              <Route path="/dashboard" element={showApp ? <LandOwnerDashboard showToast={showToast} /> : <LandingPage />} />
+              <Route path="/governor" element={showApp ? <GovernorDashboard showToast={showToast} /> : <LandingPage />} />
+              <Route path="/surveyor" element={showApp ? <SurveyorDashboard showToast={showToast} /> : <LandingPage />} />
+              <Route path="/verifier" element={showApp ? <VerifierDashboard showToast={showToast} /> : <LandingPage />} />
+              <Route path="/registrar" element={showApp ? <RegistrarDashboard showToast={showToast} /> : <LandingPage />} />
 
               {/* Sub-Pages & Tools */}
-              <Route path="/profile" element={<AssetPortfolio showToast={showToast} />} />
-              <Route path="/calib" element={<GISCalibrations showToast={showToast} />} />
-              <Route path="/registry" element={<NationalLedger showToast={showToast} />} />
-              <Route path="/nin" element={<NINDatabase showToast={showToast} />} />
-              <Route path="/sign" element={<StampDeed showToast={showToast} />} />
+              <Route path="/profile" element={showApp ? <AssetPortfolio showToast={showToast} /> : <LandingPage />} />
+              <Route path="/calib" element={showApp ? <GISCalibrations showToast={showToast} /> : <LandingPage />} />
+              <Route path="/registry" element={showApp ? <NationalLedger showToast={showToast} /> : <LandingPage />} />
+              <Route path="/nin" element={showApp ? <NINDatabase showToast={showToast} /> : <LandingPage />} />
+              <Route path="/sign" element={showApp ? <StampDeed showToast={showToast} /> : <LandingPage />} />
 
               {/* Differentiated Dispute Routes */}
-              <Route path="/disputes" element={<LandOwnerDisputes showToast={showToast} />} />
-              <Route path="/crisis-resolve" element={<GovernorCrisisResolve showToast={showToast} />} />
+              <Route path="/disputes" element={showApp ? <LandOwnerDisputes showToast={showToast} /> : <LandingPage />} />
+              <Route path="/crisis-resolve" element={showApp ? <GovernorCrisisResolve showToast={showToast} /> : <LandingPage />} />
 
               {/* Workflows */}
-              <Route path="/register" element={<LandRegistrationForm showToast={showToast} />} />
-              <Route path="/transfer" element={<LandTransferForm showToast={showToast} />} />
-              <Route path="*" element={<Navigate to="/dashboard" />} />
+              <Route path="/register" element={showApp ? <LandRegistrationForm showToast={showToast} /> : <LandingPage />} />
+              <Route path="/transfer" element={showApp ? <LandTransferForm showToast={showToast} /> : <LandingPage />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </AnimatePresence>
         </main>

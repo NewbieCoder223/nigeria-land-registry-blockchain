@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Map, ShieldCheck, Clock, Download, ArrowUpRight, Loader2, ExternalLink, FileText } from 'lucide-react';
+import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { useAccount } from 'wagmi';
 import { supabase } from '../lib/supabase';
 
@@ -8,6 +10,7 @@ const AssetPortfolio = () => {
   const { address, isConnected } = useAccount();
   const [parcels, setParcels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedParcelForMap, setSelectedParcelForMap] = useState(null);
 
   useEffect(() => {
     if (!isConnected || !address) {
@@ -158,12 +161,69 @@ const AssetPortfolio = () => {
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-between items-center text-[10px] font-mono text-white/40 uppercase border-t border-white/5">
+              <div className="pt-2 flex justify-between items-center text-[10px] font-mono text-white/40 uppercase border-t border-white/5 gap-2">
                 <span>Owner: {parcel.owner_address.slice(0, 8)}...{parcel.owner_address.slice(-6)}</span>
-                <span className="text-nigeria-green font-bold">On-Chain Immutable</span>
+                <button 
+                  onClick={() => setSelectedParcelForMap(parcel)}
+                  className="px-3 py-1.5 bg-nigeria-green/10 border border-nigeria-green/30 text-nigeria-green rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-nigeria-green hover:text-black transition-all flex items-center gap-1"
+                >
+                  <Map className="w-3 h-3" />
+                  Inspect GIS Polygon
+                </button>
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* GIS Polygon Map Modal */}
+      {selectedParcelForMap && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-reg-black/80 backdrop-blur-md"
+            onClick={() => setSelectedParcelForMap(null)}
+          />
+          <div className="glass-card w-full max-w-3xl bg-reg-surface p-8 space-y-6 relative z-10 rounded-2xl border border-white/10">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black italic uppercase text-white">
+                  GIS Boundary <span className="text-nigeria-green">Inspector</span>
+                </h3>
+                <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase">Parcel #{selectedParcelForMap.parcel_id} — {selectedParcelForMap.area} SQM</p>
+              </div>
+              <button 
+                onClick={() => setSelectedParcelForMap(null)}
+                className="px-3 py-1 bg-white/10 text-white hover:bg-white/20 rounded-lg text-xs font-bold uppercase"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="h-[400px] w-full rounded-xl overflow-hidden relative border border-white/10">
+              {(() => {
+                let coords = [];
+                if (selectedParcelForMap.gps_coordinates) {
+                  try {
+                    coords = typeof selectedParcelForMap.gps_coordinates === 'string' 
+                      ? JSON.parse(selectedParcelForMap.gps_coordinates) 
+                      : selectedParcelForMap.gps_coordinates;
+                  } catch (e) {
+                    coords = [];
+                  }
+                }
+                const center = (Array.isArray(coords) && coords.length > 0) ? coords[0] : [9.082, 8.675];
+
+                return (
+                  <MapContainer center={center} zoom={15} className="w-full h-full grayscale-[0.2] brightness-[0.8]">
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    {Array.isArray(coords) && coords.length >= 3 && (
+                      <Polygon positions={coords} pathOptions={{ color: '#059669', fillColor: '#059669', fillOpacity: 0.3 }} />
+                    )}
+                  </MapContainer>
+                );
+              })()}
+            </div>
+          </div>
         </div>
       )}
     </motion.div>

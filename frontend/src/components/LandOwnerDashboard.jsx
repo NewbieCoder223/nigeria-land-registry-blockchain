@@ -136,42 +136,51 @@ const LandOwnerDashboard = ({ showToast }) => {
         </motion.button>
       </header>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          label="Prime Holdings" 
-          value="12.4" 
-          unit="Hectares" 
-          icon={LandPlot}
-          trend="+2.1% this month"
-          color="text-nigeria-green"
-        />
-        <StatCard 
-          label="Initialized Purchase" 
-          value="3" 
-          unit="Pending" 
-          icon={Activity}
-          trend="Next review in 4h"
-          color="text-gold-accent"
-        />
-        <StatCard 
-          label="Verified Titles" 
-          value="100%" 
-          unit="Compliance" 
-          icon={ShieldCheck}
-          trend="Immutable Ledger v2"
-          color="text-nigeria-green"
-        />
-        <StatCard 
-          label="Archive Files" 
-          message="Legal Repository"
-          value="24" 
-          unit="Digital Deeds" 
-          icon={Files}
-          trend="IPFS Secured"
-          color="text-white/60"
-        />
-      </div>
+      {/* Stats Grid - Calculated Dynamically from User Parcels */}
+      {(() => {
+        const totalSqm = parcels.reduce((acc, p) => acc + (parseFloat(p.area) || 0), 0);
+        const totalHectares = (totalSqm / 10000).toFixed(2);
+        const verifiedCount = parcels.filter(p => p.status === 'Verified' || p.status === 'Active').length;
+        const pendingCount = parcels.filter(p => p.status === 'Pending').length;
+        const totalDeeds = parcels.filter(p => p.ipfs_hash).length;
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard 
+              label="Prime Holdings" 
+              value={totalHectares} 
+              unit="Hectares" 
+              icon={LandPlot}
+              trend={`${parcels.length} Total Parcels`}
+              color="text-nigeria-green"
+            />
+            <StatCard 
+              label="Pending Approvals" 
+              value={pendingCount} 
+              unit="Pending" 
+              icon={Activity}
+              trend="Workflow Active"
+              color="text-gold-accent"
+            />
+            <StatCard 
+              label="Verified Titles" 
+              value={parcels.length > 0 ? `${Math.round((verifiedCount / parcels.length) * 100)}%` : '0%'} 
+              unit="Compliance" 
+              icon={ShieldCheck}
+              trend="Immutable Ledger"
+              color="text-nigeria-green"
+            />
+            <StatCard 
+              label="Archive Files" 
+              value={totalDeeds} 
+              unit="Digital Deeds" 
+              icon={Files}
+              trend="IPFS Secured"
+              color="text-white/60"
+            />
+          </div>
+        );
+      })()}
 
       {/* Main Map & Parcel List */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
