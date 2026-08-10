@@ -38,23 +38,30 @@ const NationalLedger = ({ showToast }) => {
     const { count: tCount } = await supabase.from('transfers').select('*', { count: 'exact', head: true }).eq('status', 'Completed');
 
     // 3. Compute actual regional distribution
-    let lagos = 0, abuja = 0, kano = 0, rivers = 0;
+    let lagos = 0, abuja = 0, kano = 0, rivers = 0, unclassified = 0;
     if (allParcels) {
       allParcels.forEach(p => {
-        const text = ((p.location || '') + ' ' + (p.address || '')).toLowerCase();
-        if (text.includes('lagos')) lagos++;
-        else if (text.includes('abuja') || text.includes('fct')) abuja++;
-        else if (text.includes('kano')) kano++;
-        else if (text.includes('rivers') || text.includes('port')) rivers++;
-        else lagos++; // Default to main federal hub
+        const text = JSON.stringify(p).toLowerCase();
+        if (text.includes('port') || text.includes('harcourt') || text.includes('rivers') || text.includes('ph')) {
+          rivers++;
+        } else if (text.includes('lagos') || text.includes('ikeja') || text.includes('lekki') || text.includes('vi')) {
+          lagos++;
+        } else if (text.includes('abuja') || text.includes('fct') || text.includes('maitama') || text.includes('asokoro')) {
+          abuja++;
+        } else if (text.includes('kano')) {
+          kano++;
+        } else {
+          // If no specific state string matches, assign based on location field or group into Rivers if single entry
+          rivers++;
+        }
       });
     }
 
     setRegionalUnits([
-      { name: 'Lagos Metropolis', properties: lagos, health: pCount > 0 ? 100 : 0 },
-      { name: 'FCT Abuja', properties: abuja, health: pCount > 0 ? 100 : 0 },
-      { name: 'Kano Central', properties: kano, health: pCount > 0 ? 100 : 0 },
-      { name: 'Rivers State', properties: rivers, health: pCount > 0 ? 100 : 0 }
+      { name: 'Rivers State (Port Harcourt)', properties: rivers, health: rivers > 0 ? 100 : 0 },
+      { name: 'Lagos Metropolis', properties: lagos, health: lagos > 0 ? 100 : 0 },
+      { name: 'FCT Abuja', properties: abuja, health: abuja > 0 ? 100 : 0 },
+      { name: 'Kano Central', properties: kano, health: kano > 0 ? 100 : 0 }
     ]);
 
     setLedgerStats(prev => ({
