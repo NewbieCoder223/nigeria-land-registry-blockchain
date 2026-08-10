@@ -100,23 +100,10 @@ const RegistrarDashboard = ({ showToast }) => {
   const handleApprove = async (parcelId) => {
     setProcessingId(parcelId)
     try {
-      // 1. Instantly update database state so UI immediately moves item to Approved History
+      // Update database state directly to seal title deed
       await supabase.from('transfers').update({ registrar_approved: true, status: 'Completed' }).eq('parcel_id', parcelId);
       await supabase.from('parcels').update({ status: 'Active' }).eq('parcel_id', parcelId);
       
-      // 2. Attempt Web3 Contract Call if available
-      try {
-        const submittedHash = await writeContractAsync({
-          address: LAND_REGISTRY_ADDRESS,
-          abi: LAND_REGISTRY_ABI,
-          functionName: 'approveTransfer',
-          args: [BigInt(parcelId)],
-        });
-        if (submittedHash) setTxHash(submittedHash);
-      } catch (contractErr) {
-        console.warn("Contract call skipped/reverted:", contractErr);
-      }
-
       setProcessingId(null);
       if (showToast) showToast(`Title Deed #${parcelId} Finalized & Sealed`);
       fetchData();
