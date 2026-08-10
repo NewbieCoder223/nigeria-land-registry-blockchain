@@ -89,6 +89,21 @@ const NINDatabase = ({ showToast }) => {
 
   useEffect(() => {
     fetchIdentityRecords();
+
+    const channel1 = supabase
+      .channel('nin-profiles-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchIdentityRecords())
+      .subscribe();
+
+    const channel2 = supabase
+      .channel('nin-parcels-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'parcels' }, () => fetchIdentityRecords())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel1);
+      supabase.removeChannel(channel2);
+    };
   }, []);
 
   // Search Filter Handler - High Precision Wildcard & Partial Matching
