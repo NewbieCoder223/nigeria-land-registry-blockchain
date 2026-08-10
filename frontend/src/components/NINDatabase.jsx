@@ -168,11 +168,11 @@ const NINDatabase = ({ showToast }) => {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 text-white">
+          <h2 className="text-4xl font-black tracking-tight text-white mb-2 uppercase italic flex items-center gap-3">
              <UserCircle className="text-nigeria-green w-8 h-8" />
-             National <span className="text-nigeria-green font-black">Identity Interface</span>
+             National <span className="text-white/40">Identity Interface</span>
           </h2>
-          <p className="text-xs text-white/50 font-medium mt-1">Cross-Reference Sync with NIMC Database</p>
+          <p className="text-sm text-white/40 font-medium uppercase tracking-[0.2em]">Cross-Reference Sync with NIMC Database</p>
         </div>
         
         <div className="w-full md:w-auto relative group">
