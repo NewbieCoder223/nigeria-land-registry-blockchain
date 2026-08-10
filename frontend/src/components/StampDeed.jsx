@@ -17,9 +17,12 @@ const StampDeed = ({ showToast }) => {
       if (data && data.length > 0) {
         setParcels(data);
         setSelectedParcel(data[0]);
+      } else {
+        setParcels([]);
+        setSelectedParcel(null);
       }
     } catch (e) {
-      console.error(e);
+      console.error("StampDeed fetch error:", e);
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +102,7 @@ const StampDeed = ({ showToast }) => {
         <p className="text-xs text-white/40 font-mono tracking-widest uppercase mt-1">Registrar Authorization Desk: Final Authentication Layer</p>
       </div>
 
-      {parcels.length > 1 && (
+      {parcels.length >= 1 && (
         <div className="glass-card p-4 rounded-xl border border-white/5 flex items-center justify-between">
            <label className="text-xs font-bold text-white/60 uppercase tracking-wider">Select Target Title Parcel:</label>
            <select 
@@ -114,7 +117,7 @@ const StampDeed = ({ showToast }) => {
              className="bg-black/60 border border-white/10 text-white text-xs rounded-lg px-4 py-2 font-mono"
            >
               {parcels.map(p => (
-                <option key={p.parcel_id} value={p.parcel_id}>Parcel #{p.parcel_id} - {p.location || 'Rivers State'}</option>
+                <option key={p.parcel_id} value={p.parcel_id}>Parcel #{p.parcel_id} - {p.location || 'Rivers State (Port Harcourt)'}</option>
               ))}
            </select>
         </div>

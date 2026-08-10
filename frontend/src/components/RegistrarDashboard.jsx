@@ -44,11 +44,10 @@ const RegistrarDashboard = ({ showToast }) => {
 
       setPendingDeeds(transfers || []);
 
-      // 2. Fetch all approved/verified land parcels for history
+      // 2. Fetch all land parcels for history
       const { data: verifiedParcels } = await supabase
         .from('parcels')
         .select('*')
-        .or('status.eq.Active,status.eq.Verified')
         .order('created_at', { ascending: false });
 
       setApprovedDeeds(verifiedParcels || []);
