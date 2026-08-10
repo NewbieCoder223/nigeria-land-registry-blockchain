@@ -106,25 +106,47 @@ const NINDatabase = ({ showToast }) => {
     };
   }, []);
 
-  // Search Filter Handler - High Precision Wildcard & Partial Matching
+  // Search Filter Handler - High Precision Wildcard & SHA-256 NIN Hash Matching
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredRecords(records);
-    } else {
+    const filterRecords = async () => {
+      if (!searchQuery.trim()) {
+        setFilteredRecords(records);
+        return;
+      }
+
       const term = searchQuery.toLowerCase().trim();
+
+      // Compute SHA256 hash of term if it looks like an 11-digit NIN
+      let searchHash = '';
+      if (/^\d{11}$/.test(term)) {
+        try {
+          const encoder = new TextEncoder();
+          const dataBuffer = encoder.encode(term);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          searchHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toLowerCase();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       const filtered = records.filter(r => {
         const nameMatch = (r.name || '').toLowerCase().includes(term);
         const walletMatch = (r.wallet || '').toLowerCase().includes(term);
         const ninHashMatch = (r.ninHash || '').toLowerCase().includes(term);
         const fullHashMatch = (r.fullNinHash || '').toLowerCase().includes(term);
         const rawNinMatch = (r.rawNin || '').toLowerCase().includes(term);
+        const sha256Match = searchHash ? (r.fullNinHash || '').toLowerCase().includes(searchHash.slice(0, 16)) : false;
         const idMatch = String(r.id || '').toLowerCase().includes(term);
         const statusMatch = (r.status || '').toLowerCase().includes(term);
         
-        return nameMatch || walletMatch || ninHashMatch || fullHashMatch || rawNinMatch || idMatch || statusMatch;
+        return nameMatch || walletMatch || ninHashMatch || fullHashMatch || rawNinMatch || sha256Match || idMatch || statusMatch;
       });
+
       setFilteredRecords(filtered);
-    }
+    };
+
+    filterRecords();
   }, [searchQuery, records]);
 
   // ⚡ Refresh Identity Nodes Handler
