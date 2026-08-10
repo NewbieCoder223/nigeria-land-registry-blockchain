@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bug, 
@@ -9,16 +9,30 @@ import {
   Trash2, 
   RefreshCw,
   ExternalLink,
-  ChevronUp,
   X
 } from 'lucide-react';
 import { useAccount, useChainId } from 'wagmi';
+import { useNavigate } from 'react-router-dom';
 
 const DebugOverlay = ({ role, setRole, showToast }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const chainId = useChainId();
+  const navigate = useNavigate();
 
+  const handleRoleShift = (r) => {
+    setRole(r);
+    localStorage.setItem('user_role', r);
+    if (showToast) showToast(`Identity Shifted to ${r}`);
+
+    switch (r) {
+      case 'GOVERNOR': navigate('/governor'); break;
+      case 'SURVEYOR': navigate('/surveyor'); break;
+      case 'VERIFIER': navigate('/verifier'); break;
+      case 'REGISTRAR': navigate('/registrar'); break;
+      default: navigate('/dashboard'); break;
+    }
+  };
 
   const clearAuth = () => {
     localStorage.removeItem('auth_token');
@@ -64,7 +78,7 @@ const DebugOverlay = ({ role, setRole, showToast }) => {
                 <Zap className="w-3 h-3 text-emerald-500" />
                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">Network Status</span>
              </div>
-             <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-widest">Polygon Amoy (80002)</span>
+             <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-widest">Polygon Amoy ({chainId || 80002})</span>
           </div>
 
           {/* Wallet Status */}
@@ -84,16 +98,13 @@ const DebugOverlay = ({ role, setRole, showToast }) => {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-white/40">
               <Shield className="w-3 h-3" />
-              <span className="text-[9px] font-bold uppercase tracking-widest">Sovereign Identity override</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest">Sovereign Identity Override</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {['LANDOWNER', 'SURVEYOR', 'REGISTRAR', 'GOVERNOR', 'VERIFIER'].map(r => (
+              {['LANDOWNER', 'SURVEYOR', 'VERIFIER', 'GOVERNOR', 'REGISTRAR'].map(r => (
                 <button
                   key={r}
-                  onClick={() => {
-                    setRole(r);
-                    showToast(`Identity Shifted to ${r}`);
-                  }}
+                  onClick={() => handleRoleShift(r)}
                   className={`px-2 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${
                     role === r 
                       ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20' 

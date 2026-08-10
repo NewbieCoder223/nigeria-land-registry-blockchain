@@ -202,14 +202,35 @@ const LandRegistrationForm = () => {
     setError(null)
 
     try {
-      // Step 1: Mock NIN Verification via Backend
+      // 1. Check for duplicate NIN hash in database
+      const encoder = new TextEncoder();
+      const dataBuffer = encoder.encode(trimmedNin);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const ninHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      const { data: existingProfiles } = await supabase
+        .from('profiles')
+        .select('full_name, wallet_address')
+        .eq('nin_hash', ninHash);
+
+      if (existingProfiles && existingProfiles.length > 0) {
+        const existingName = existingProfiles[0].full_name;
+        if (existingName && existingName.toLowerCase() !== formData.ownerName.trim().toLowerCase()) {
+          setError(`NIN Conflict Detected: NIN ${trimmedNin} is already registered under a different legal name (${existingName}).`);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // 2. Call backend verification endpoint
       const response = await axios.post(`${BACKEND_URL}/api/auth/verify-nin`, {
         nin: formData.nin,
         name: formData.ownerName,
         dob: formData.dob
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
+      });
 
       if (response.data.verified) {
         nextStep()
