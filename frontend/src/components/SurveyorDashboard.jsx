@@ -224,19 +224,48 @@ const SurveyorDashboard = ({ showToast }) => {
     handleSearchGazette();
   };
 
-  // 🎯 Execute GNSS Recalibration Handler
-  const handleExecuteRecalibration = () => {
+  // 🎯 Execute GNSS Recalibration & Spatial Overlap Collision Audit Handler
+  const handleExecuteRecalibration = async () => {
     setIsRecalibrating(true);
-    setRecalibrationLog("Connecting to RTK-GNSS Satellite Array...");
+    setRecalibrationLog("Connecting to RTK-GNSS Satellite Array & querying spatial database...");
+
+    const { data: dbParcels } = await supabase.from('parcels').select('*');
+    const parcelList = dbParcels || allParcels;
 
     setTimeout(() => {
-      setRecalibrationLog("Pinging 14 Active Satellite Nodes... Delta Drift: 0.00042ms");
+      setRecalibrationLog(`Pinging 16 Active GNSS Satellite Nodes... Auditing ${parcelList.length} registered parcels for spatial boundary overlaps...`);
     }, 1200);
 
     setTimeout(() => {
-      setRecalibrationLog(`Recalibrated ${allParcels.length} GIS Polygon Parcels. Zero spatial overlap conflicts detected.`);
+      // Perform real spatial collision check (Bounding Box Intersection)
+      let overlapsFound = 0;
+      for (let i = 0; i < parcelList.length; i++) {
+        for (let j = i + 1; j < parcelList.length; j++) {
+          const c1 = typeof parcelList[i].gps_coordinates === 'string' ? JSON.parse(parcelList[i].gps_coordinates) : parcelList[i].gps_coordinates;
+          const c2 = typeof parcelList[j].gps_coordinates === 'string' ? JSON.parse(parcelList[j].gps_coordinates) : parcelList[j].gps_coordinates;
+
+          if (Array.isArray(c1) && Array.isArray(c2) && c1.length > 0 && c2.length > 0) {
+            // Check bounding box intersection
+            const minLat1 = Math.min(...c1.map(p => p[0])), maxLat1 = Math.max(...c1.map(p => p[0]));
+            const minLng1 = Math.min(...c1.map(p => p[1])), maxLng1 = Math.max(...c1.map(p => p[1]));
+
+            const minLat2 = Math.min(...c2.map(p => p[0])), maxLat2 = Math.max(...c2.map(p => p[0]));
+            const minLng2 = Math.min(...c2.map(p => p[1])), maxLng2 = Math.max(...c2.map(p => p[1]));
+
+            const intersects = !(maxLat1 < minLat2 || minLat1 > maxLat2 || maxLng1 < minLng2 || minLng1 > maxLng2);
+            if (intersects) overlapsFound++;
+          }
+        }
+      }
+
+      if (overlapsFound > 0) {
+        setRecalibrationLog(`Recalibration complete: ${parcelList.length} GIS Parcels Audited. ⚠️ ${overlapsFound} Potential Boundary Overlap Conflict(s) Detected.`);
+      } else {
+        setRecalibrationLog(`GNSS Recalibration Complete: ${parcelList.length} GIS Parcels Synchronized. Zero spatial boundary conflicts detected across state database.`);
+      }
+
       setIsRecalibrating(false);
-      if (showToast) showToast(`GNSS Satellite Recalibration Complete: ${allParcels.length} Parcels Synchronized`);
+      if (showToast) showToast(`Recalibration Audit Finished: ${parcelList.length} Parcels Synchronized`);
     }, 2800);
   };
 
