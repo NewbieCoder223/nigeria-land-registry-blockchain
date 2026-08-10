@@ -43,12 +43,14 @@ const NINDatabase = ({ showToast }) => {
 
       let combinedRecords = [];
 
-      if (profiles && profiles.length > 0) {
+       if (profiles && profiles.length > 0) {
         combinedRecords = profiles.map(p => {
           const userParcelsCount = parcels ? parcels.filter(pcl => pcl.owner_address.toLowerCase() === (p.wallet_address || '').toLowerCase()).length : 0;
           return {
             id: p.id,
             ninHash: p.nin_hash ? `NIN-SHA256-${p.nin_hash.slice(0, 8)}...` : 'NIN-SECURE-HASH',
+            fullNinHash: p.nin_hash || '',
+            rawNin: p.nin || '',
             name: p.full_name || 'Registered Citizen',
             wallet: p.wallet_address || '0x...',
             status: p.is_verified ? 'VERIFIED' : 'PENDING_AUDIT',
@@ -59,13 +61,14 @@ const NINDatabase = ({ showToast }) => {
         });
       }
 
-      // If database profiles are sparse, derive identity records from parcels table
       if (parcels && parcels.length > 0) {
         parcels.forEach(p => {
           if (!combinedRecords.some(r => r.wallet.toLowerCase() === p.owner_address.toLowerCase())) {
             combinedRecords.push({
               id: p.parcel_id,
               ninHash: `NIN-SHA256-${(p.ipfs_hash || 'HASH').slice(0, 8)}...`,
+              fullNinHash: p.ipfs_hash || '',
+              rawNin: '',
               name: `Title Holder (Parcel #${p.parcel_id})`,
               wallet: p.owner_address,
               status: p.status === 'Verified' ? 'VERIFIED' : 'ACTIVE_TITLE',
@@ -91,7 +94,7 @@ const NINDatabase = ({ showToast }) => {
     fetchIdentityRecords();
   }, []);
 
-  // Search Filter Handler
+  // Search Filter Handler - High Precision Cross-Field Search
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredRecords(records);
@@ -101,6 +104,9 @@ const NINDatabase = ({ showToast }) => {
         r.name.toLowerCase().includes(term) ||
         r.wallet.toLowerCase().includes(term) ||
         r.ninHash.toLowerCase().includes(term) ||
+        r.fullNinHash.toLowerCase().includes(term) ||
+        r.rawNin.toLowerCase().includes(term) ||
+        String(r.id).toLowerCase().includes(term) ||
         r.status.toLowerCase().includes(term)
       );
       setFilteredRecords(filtered);
