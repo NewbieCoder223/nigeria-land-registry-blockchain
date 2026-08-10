@@ -21,13 +21,41 @@ const NationalLedger = ({ showToast }) => {
     functionName: 'totalParcels',
   });
 
+  const [regionalUnits, setRegionalUnits] = useState([
+    { name: 'Lagos Metropolis', properties: 0, health: 100 },
+    { name: 'FCT Abuja', properties: 0, health: 100 },
+    { name: 'Kano Central', properties: 0, health: 100 },
+    { name: 'Rivers State', properties: 0, health: 100 }
+  ]);
+
   const fetchLedgerData = async () => {
     setIsLoading(true);
     // 1. Get confirmed parcel count from Supabase
-    const { count: pCount } = await supabase.from('parcels').select('*', { count: 'exact', head: true });
+    const { data: allParcels } = await supabase.from('parcels').select('*');
+    const pCount = allParcels?.length || 0;
     
     // 2. Get completed transfer volume
     const { count: tCount } = await supabase.from('transfers').select('*', { count: 'exact', head: true }).eq('status', 'Completed');
+
+    // 3. Compute actual regional distribution
+    let lagos = 0, abuja = 0, kano = 0, rivers = 0;
+    if (allParcels) {
+      allParcels.forEach(p => {
+        const text = ((p.location || '') + ' ' + (p.address || '')).toLowerCase();
+        if (text.includes('lagos')) lagos++;
+        else if (text.includes('abuja') || text.includes('fct')) abuja++;
+        else if (text.includes('kano')) kano++;
+        else if (text.includes('rivers') || text.includes('port')) rivers++;
+        else lagos++; // Default to main federal hub
+      });
+    }
+
+    setRegionalUnits([
+      { name: 'Lagos Metropolis', properties: lagos, health: pCount > 0 ? 100 : 0 },
+      { name: 'FCT Abuja', properties: abuja, health: pCount > 0 ? 100 : 0 },
+      { name: 'Kano Central', properties: kano, health: pCount > 0 ? 100 : 0 },
+      { name: 'Rivers State', properties: rivers, health: pCount > 0 ? 100 : 0 }
+    ]);
 
     setLedgerStats(prev => ({
       ...prev,
@@ -36,31 +64,6 @@ const NationalLedger = ({ showToast }) => {
     }));
     setIsLoading(false);
   };
-
-  useEffect(() => {
-    fetchLedgerData();
-
-    const channel = supabase
-      .channel('ledger-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'parcels' }, () => fetchLedgerData())
-      .subscribe();
-
-    return () => supabase.removeChannel(channel);
-  }, [totalParcels]);
-
-  const stats = [
-    { label: 'Sovereign Parcels', value: ledgerStats.parcels.toLocaleString(), change: '+Active', icon: ShieldCheck },
-    { label: 'Transactions (All Time)', value: ledgerStats.transfers.toLocaleString(), change: 'Verified', icon: Zap },
-    { label: 'Growth Velocity', value: ledgerStats.growth, change: '+1.1%', icon: TrendingUp },
-    { label: 'Network Shards', value: ledgerStats.shards, change: 'Stable', icon: Activity }
-  ];
-
-  const regions = [
-    { name: 'Lagos Metropolis', properties: 1420, health: 98 },
-    { name: 'FCT Abuja', properties: 850, health: 95 },
-    { name: 'Kano Central', properties: 420, health: 92 },
-    { name: 'Rivers State', properties: 310, health: 88 }
-  ];
 
   return (
     <motion.div 
@@ -156,7 +159,7 @@ const NationalLedger = ({ showToast }) => {
            </div>
 
            <div className="space-y-6">
-              {regions.map(r => (
+              {regionalUnits.map(r => (
                  <div key={r.name} className="space-y-2">
                     <div className="flex justify-between items-center">
                        <span className="text-[11px] font-bold text-white italic uppercase tracking-tighter">{r.name}</span>
