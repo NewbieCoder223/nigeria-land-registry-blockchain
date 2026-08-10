@@ -84,6 +84,7 @@ const GovernorDashboard = ({ showToast }) => {
       setStats({
         hectares: `${hectaresCalculated} Ha`,
         disputes: combinedDisputes.length,
+        parcelsCount: allParcels?.length || 0,
         health: 'Live (Polygon Amoy)'
       });
 
@@ -282,19 +283,19 @@ const GovernorDashboard = ({ showToast }) => {
             </div>
          </div>
 
-         {/* Territory Overview Side Widget */}
-         <div className="space-y-6">
-            <h3 className="text-lg font-bold text-white tracking-tight uppercase italic underline decoration-white/20 underline-offset-8">Territory Pulse</h3>
-            <div className="glass-card p-8 space-y-8">
-               <TerritoryItem region="Lagos" status="Active" color="bg-emerald-500" value={84} showToast={showToast} />
-               <TerritoryItem region="Federal Capital Territory" status="Congested" color="bg-amber-500" value={62} showToast={showToast} />
-               <TerritoryItem region="Rivers State" status="Active" color="bg-emerald-500" value={41} showToast={showToast} />
-               
-               <div className="pt-4 border-t-0.5 border-white/5">
-                  <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] text-center">Protocol Level: Sovereign_Root_4</p>
-               </div>
-            </div>
-         </div>
+          {/* Territory Overview Side Widget */}
+          <div className="space-y-6">
+             <h3 className="text-lg font-bold text-white tracking-tight uppercase italic underline decoration-white/20 underline-offset-8">Territory Pulse</h3>
+             <div className="glass-card p-8 space-y-8">
+                <TerritoryItem region="Rivers State (Port Harcourt)" status={stats.parcelsCount > 0 ? "Active" : "Optimal"} color="bg-emerald-500" value={stats.parcelsCount > 0 ? 100 : 0} />
+                <TerritoryItem region="Lagos Metropolis" status="Optimal" color="bg-blue-500" value={0} />
+                <TerritoryItem region="Federal Capital Territory" status="Optimal" color="bg-indigo-500" value={0} />
+                
+                <div className="pt-4 border-t-0.5 border-white/5">
+                   <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] text-center">Protocol Level: Sovereign_Root_4</p>
+                </div>
+             </div>
+          </div>
       </div>
     </div>
   )
