@@ -63,23 +63,41 @@ const LandRegistrationForm = () => {
     let lat = null;
     let lon = null;
 
+    let exactPolygon = null;
+
     try {
-      // Use native fetch to Nominatim API
-      const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Nigeria')}&limit=1`;
+      // Query OpenStreetMap Nominatim with polygon_geojson=1 to get the exact real-world boundary polygon
+      const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=${encodeURIComponent(query + ', Nigeria')}&limit=1`;
       const response = await fetch(searchUrl);
       const data = await response.json();
 
       if (Array.isArray(data) && data.length > 0) {
         lat = parseFloat(data[0].lat);
         lon = parseFloat(data[0].lon);
+
+        // If OpenStreetMap returned a real GeoJSON polygon (Polygon or MultiPolygon)
+        if (data[0].geojson && (data[0].geojson.type === 'Polygon' || data[0].geojson.type === 'MultiPolygon')) {
+          const rawCoords = data[0].geojson.type === 'Polygon' ? data[0].geojson.coordinates[0] : data[0].geojson.coordinates[0][0];
+          if (Array.isArray(rawCoords) && rawCoords.length >= 3) {
+            // Leaflet requires [lat, lon], while GeoJSON supplies [lon, lat]
+            exactPolygon = rawCoords.map(pt => [pt[1], pt[0]]);
+          }
+        }
       } else {
-        // Retry without appending Nigeria
-        const retryUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        // Retry exact query
+        const retryUrl = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=${encodeURIComponent(query)}&limit=1`;
         const retryRes = await fetch(retryUrl);
         const retryData = await retryRes.json();
         if (Array.isArray(retryData) && retryData.length > 0) {
           lat = parseFloat(retryData[0].lat);
           lon = parseFloat(retryData[0].lon);
+
+          if (retryData[0].geojson && (retryData[0].geojson.type === 'Polygon' || retryData[0].geojson.type === 'MultiPolygon')) {
+            const rawCoords = retryData[0].geojson.type === 'Polygon' ? retryData[0].geojson.coordinates[0] : retryData[0].geojson.coordinates[0][0];
+            if (Array.isArray(rawCoords) && rawCoords.length >= 3) {
+              exactPolygon = rawCoords.map(pt => [pt[1], pt[0]]);
+            }
+          }
         }
       }
     } catch (err) {
@@ -108,7 +126,7 @@ const LandRegistrationForm = () => {
     }
 
     const offset = 0.0012;
-    const autoPolygon = [
+    const targetPolygon = exactPolygon || [
       [lat + offset, lon - offset],
       [lat + offset, lon + offset],
       [lat - offset, lon + offset],
@@ -135,13 +153,13 @@ const LandRegistrationForm = () => {
       return Math.round(area);
     };
 
-    const computedArea = calculateRealAreaSqm(autoPolygon);
+    const computedArea = calculateRealAreaSqm(targetPolygon);
 
     setMapCenter([lat, lon]);
     setMapZoom(16);
     setFormData(d => ({ 
       ...d, 
-      coordinates: autoPolygon,
+      coordinates: targetPolygon,
       area: String(computedArea || 1250)
     }));
     setIsSearchingLoc(false);
