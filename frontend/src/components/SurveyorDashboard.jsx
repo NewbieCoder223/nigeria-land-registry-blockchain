@@ -194,16 +194,34 @@ const SurveyorDashboard = ({ showToast }) => {
   // 🔍 Real Federal Gazette Search Handler
   const handleSearchGazette = async (e) => {
     if (e) e.preventDefault();
-    if (!gazetteQuery.trim()) return;
-
     const term = gazetteQuery.toLowerCase().trim();
-    const matches = allParcels.filter(p => 
-      String(p.parcel_id).includes(term) ||
-      (p.owner_address && p.owner_address.toLowerCase().includes(term)) ||
-      (p.ipfs_hash && p.ipfs_hash.toLowerCase().includes(term))
-    );
+    
+    // Direct Supabase query to ensure complete database lookup
+    const { data: searchData, error } = await supabase
+      .from('parcels')
+      .select('*');
 
-    setGazetteResults(matches);
+    if (searchData && !error) {
+      if (!term) {
+        setGazetteResults(searchData);
+      } else {
+        const matches = searchData.filter(p => 
+          String(p.parcel_id || '').toLowerCase().includes(term) ||
+          String(p.owner_address || '').toLowerCase().includes(term) ||
+          String(p.ipfs_hash || '').toLowerCase().includes(term) ||
+          String(p.status || '').toLowerCase().includes(term)
+        );
+        setGazetteResults(matches);
+      }
+    } else {
+      setGazetteResults([]);
+    }
+  };
+
+  // Open Gazette Modal & Pre-fetch results
+  const openGazetteModal = () => {
+    setIsGazetteModalOpen(true);
+    handleSearchGazette();
   };
 
   // 🎯 Execute GNSS Recalibration Handler
@@ -255,7 +273,7 @@ const SurveyorDashboard = ({ showToast }) => {
 
         <div className="flex flex-wrap gap-4">
            <button 
-             onClick={() => setIsGazetteModalOpen(true)}
+             onClick={openGazetteModal}
              className="flex items-center gap-2 px-4 py-2 bg-white/5 border-0.5 border-white/10 rounded-xl text-[10px] font-bold text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
            >
               <Search className="w-3.5 h-3.5" />
