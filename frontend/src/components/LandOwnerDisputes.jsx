@@ -19,6 +19,7 @@ import {
 } from 'wagmi';
 import { parseEther } from 'viem';
 import { LAND_REGISTRY_ADDRESS, LAND_REGISTRY_ABI } from '../contracts/landRegistry';
+import { supabase } from '../lib/supabase';
 
 const LandOwnerDisputes = () => {
   const { address } = useAccount();
@@ -36,17 +37,27 @@ const LandOwnerDisputes = () => {
     const fetchData = async () => {
       setIsLoadingCases(true);
       if (address) {
-        // Fetch User's Parcels for the dropdown selector
-        const { data: parcelData } = await supabase
+        // Fetch User's Parcels first
+        const { data: userParcelData } = await supabase
           .from('parcels')
           .select('parcel_id, ipfs_hash, status')
           .eq('owner_address', address.toLowerCase());
         
-        if (parcelData) {
-          setUserParcels(parcelData);
-          if (parcelData.length > 0) {
-            setParcelId(String(parcelData[0].parcel_id));
+        let availableParcels = userParcelData || [];
+
+        // If user owns 0 parcels, fetch all system parcels so they can select any parcel to dispute
+        if (availableParcels.length === 0) {
+          const { data: allParcelData } = await supabase
+            .from('parcels')
+            .select('parcel_id, ipfs_hash, status');
+          if (allParcelData) {
+            availableParcels = allParcelData;
           }
+        }
+
+        setUserParcels(availableParcels);
+        if (availableParcels.length > 0) {
+          setParcelId(String(availableParcels[0].parcel_id));
         }
 
         // Fetch user disputes

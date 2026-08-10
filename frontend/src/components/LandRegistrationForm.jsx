@@ -55,11 +55,19 @@ const LandRegistrationForm = () => {
 
   const handleSearchLocation = async (e) => {
     if (e) e.preventDefault();
-    if (!searchLocation.trim()) return;
+    const query = searchLocation.trim();
+    if (!query) return;
     setIsSearchingLoc(true);
     setError(null);
     try {
-      const res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchLocation + ', Nigeria')}`);
+      // 1st Try: With Nigeria appended
+      let res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Nigeria')}`);
+      
+      // 2nd Try: Exact Query as typed
+      if (!res.data || res.data.length === 0) {
+        res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      }
+
       if (res.data && res.data.length > 0) {
         const lat = parseFloat(res.data[0].lat);
         const lon = parseFloat(res.data[0].lon);
@@ -77,7 +85,7 @@ const LandRegistrationForm = () => {
         ];
         setFormData(d => ({ ...d, coordinates: autoPolygon }));
       } else {
-        setError("Location not found. Please try a landmark, street, or city name in Nigeria.");
+        setError("Location not found. Please try a landmark, street, or city name.");
       }
     } catch (err) {
       console.error(err);
@@ -471,33 +479,33 @@ const LandRegistrationForm = () => {
 
         {/* Footer Navigation */}
         {step < 4 && (
-          <div className="p-8 border-t-0.5 border-white/5 bg-reg-black/20 flex justify-between">
-            <div className="flex gap-4">
+          <div className="p-4 sm:p-8 border-t-0.5 border-white/5 bg-reg-black/20 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button 
                 onClick={() => window.location.href = '/dashboard'}
                 disabled={isProcessing}
-                className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-all disabled:opacity-20"
+                className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white transition-all disabled:opacity-20"
               >
-                Cancel Registration
+                Cancel
               </button>
               <button 
                 onClick={prevStep}
                 disabled={step === 1 || isProcessing}
-                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-                  step === 1 ? 'opacity-0' : 'text-white/40 hover:text-white disabled:opacity-20'
+                className={`flex items-center gap-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${
+                  step === 1 ? 'opacity-0 pointer-events-none' : 'text-white/40 hover:text-white disabled:opacity-20'
                 }`}
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 Back
               </button>
             </div>
             <button 
               onClick={step === 1 ? handleVerifyIdentity : (step === 3 ? handleFinalSubmit : nextStep)}
               disabled={isProcessing}
-              className="btn-primary flex items-center gap-2 px-10 disabled:opacity-20"
+              className="btn-primary flex items-center justify-center gap-2 px-6 sm:px-10 py-2.5 sm:py-3 text-xs sm:text-sm disabled:opacity-20"
             >
               <span>{step === 1 ? 'Verify Identity' : (step === 3 ? 'Authorize & Sign' : 'Continue')}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
             </button>
           </div>
         )}
