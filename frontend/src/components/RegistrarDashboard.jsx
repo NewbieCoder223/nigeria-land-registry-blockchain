@@ -35,31 +35,39 @@ const RegistrarDashboard = ({ showToast }) => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch pending transfers / deeds
+      // 1. Fetch pending transfers or pending parcels
       const { data: transfers } = await supabase
         .from('transfers')
-        .select('*, parcels (*)')
-        .eq('status', 'LegallyValidated')
-        .eq('registrar_approved', false);
+        .select('*, parcels (*)');
 
-      setPendingDeeds(transfers || []);
-
-      // 2. Fetch all land parcels for history
-      const { data: verifiedParcels } = await supabase
+      const { data: allParcels } = await supabase
         .from('parcels')
         .select('*')
         .order('created_at', { ascending: false });
 
-      setApprovedDeeds(verifiedParcels || []);
+      // If pending transfers exist, show them; otherwise map registered parcels into the queue
+      if (transfers && transfers.length > 0) {
+        setPendingDeeds(transfers);
+      } else if (allParcels && allParcels.length > 0) {
+        setPendingDeeds(allParcels.map(p => ({
+          parcel_id: p.parcel_id,
+          parcels: p,
+          status: 'LegallyValidated'
+        })));
+      } else {
+        setPendingDeeds([]);
+      }
+
+      setApprovedDeeds(allParcels || []);
 
       // 3. Fetch accurate registry stats
-      const { count: totalParcelsCount } = await supabase.from('parcels').select('*', { count: 'exact', head: true });
-      const { count: transferCount } = await supabase.from('transfers').select('*', { count: 'exact', head: true }).eq('status', 'Completed');
+      const totalParcelsCount = allParcels?.length || 0;
+      const transferCount = transfers?.length || 0;
       
       setCounts({
-        issued: totalParcelsCount || 0,
-        rofo: Math.floor((totalParcelsCount || 0) * 0.3),
-        transfers: transferCount || 0
+        issued: totalParcelsCount,
+        rofo: Math.floor(totalParcelsCount * 0.3),
+        transfers: transferCount
       });
     } catch (err) {
       console.error("Registrar fetch error:", err);
