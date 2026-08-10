@@ -31,34 +31,67 @@ const GovernorDashboard = ({ showToast }) => {
   const [stats, setStats] = useState({ hectares: 0, disputes: 0, health: '99.9%' })
 
   const fetchData = async () => {
-    if (!isConnected || !address) {
-      setIsLoading(false);
-      setProcessingId(null);
-      return;
-    }
     setIsLoading(true);
 
-    // 1. Fetch disputed parcels
-    const { data: disputedParcels, error } = await supabase
-      .from('parcels')
-      .select('*')
-      .eq('status', 'Disputed');
+    try {
+      // 1. Fetch all reported disputes from disputes table
+      const { data: disputeRecords } = await supabase
+        .from('disputes')
+        .select('*, parcels (*)')
+        .order('created_at', { ascending: false });
 
-    if (!error && disputedParcels) {
-      setDisputes(disputedParcels);
+      // 2. Fetch disputed parcels directly
+      const { data: disputedParcels } = await supabase
+        .from('parcels')
+        .select('*')
+        .eq('status', 'Disputed');
+
+      let combinedDisputes = [];
+
+      if (disputeRecords && disputeRecords.length > 0) {
+        disputeRecords.forEach(d => {
+          combinedDisputes.push({
+            id: d.id,
+            parcel_id: d.parcel_id,
+            claimant: d.claimant || '0x...',
+            reason: d.reason || 'Boundary / Title Overlap Claim',
+            status: d.status || 'Pending Governor Review'
+          });
+        });
+      }
+
+      if (disputedParcels && disputedParcels.length > 0) {
+        disputedParcels.forEach(p => {
+          if (!combinedDisputes.some(cd => String(cd.parcel_id) === String(p.parcel_id))) {
+            combinedDisputes.push({
+              id: p.parcel_id,
+              parcel_id: p.parcel_id,
+              claimant: p.owner_address,
+              reason: 'Territorial Title Overlap',
+              status: 'Disputed'
+            });
+          }
+        });
+      }
+
+      setDisputes(combinedDisputes);
+
+      // 3. Fetch global metrics
+      const { data: allParcels } = await supabase.from('parcels').select('area');
+      const totalAreaSqm = allParcels?.reduce((sum, p) => sum + (parseFloat(p.area) || 0), 0) || 0;
+      const hectaresCalculated = (totalAreaSqm / 10000).toFixed(2);
+      
+      setStats({
+        hectares: `${hectaresCalculated} Ha`,
+        disputes: combinedDisputes.length,
+        health: 'Live (Polygon Amoy)'
+      });
+
+    } catch (err) {
+      console.error("Governor fetch error:", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    // 2. Fetch global metrics
-    const { data: allParcels } = await supabase.from('parcels').select('area');
-    const totalArea = allParcels?.reduce((sum, p) => sum + (parseFloat(p.area) || 0), 0) || 0;
-    
-    setStats({
-      hectares: (totalArea / 10000).toFixed(1) + 'M', // Mocking M suffix for aesthetic
-      disputes: disputedParcels?.length || 0,
-      health: 'Live'
-    });
-
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -201,7 +234,7 @@ const GovernorDashboard = ({ showToast }) => {
                              <span className="font-mono text-nigeria-green uppercase">#{dispute.parcel_id}</span>
                           </td>
                           <td className="px-8 py-6">
-                             <span className="font-mono text-white/40">{dispute.owner_address.slice(0,10)}...</span>
+                             <span className="font-mono text-white/40">{dispute.claimant ? `${dispute.claimant.slice(0,6)}...${dispute.claimant.slice(-4)}` : '0x...'}</span>
                           </td>
                           <td className="px-8 py-6">
                              <div className="space-y-1">

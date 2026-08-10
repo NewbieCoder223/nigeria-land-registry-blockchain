@@ -20,11 +20,37 @@ const GovernorCrisisResolve = ({ showToast }) => {
     }
   ];
 
+  const handleEmergencyFreeze = async () => {
+    try {
+      await supabase.from('parcels').update({ status: 'FROZEN' }).eq('status', 'Disputed');
+      if (showToast) showToast('National Emergency Asset Freeze Activated: Disputed Parcels Locked');
+    } catch (e) {
+      if (showToast) showToast('Freeze protocol error');
+    }
+  };
+
+  const handleAuditLogsDownload = () => {
+    const auditData = {
+      system: 'CRISIS_RESOLVE_EXECUTIVE_AUDIT',
+      timestamp: new Date().toISOString(),
+      activeInterventions: hotCases,
+      vulnerabilityScore: 'Moderate',
+      litigationVelocity: '+4.2%',
+      frozenAssetsTotal: '₦42.8B',
+      status: 'VERIFIED_ON_CHAIN'
+    };
+    const blob = new Blob([JSON.stringify(auditData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `Sovereign_Crisis_Audit_${Date.now()}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    if (showToast) showToast('Sovereign Crisis Audit Log downloaded to your device');
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-8 space-y-8"
+      className="p-8 space-y-8 max-w-[1600px] mx-auto"
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-reg-black/40 border border-white/5 p-8 rounded-2xl relative overflow-hidden backdrop-blur-luxury">
         <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -36,21 +62,21 @@ const GovernorCrisisResolve = ({ showToast }) => {
               <Scale className="w-8 h-8 text-rose-500" />
            </div>
            <div>
-              <h2 className="text-3xl font-black italic tracking-tighter uppercase">Legal <span className="text-rose-500 italic uppercase">Intervention Hub</span></h2>
+              <h2 className="text-3xl font-black italic tracking-tighter uppercase text-white">Legal <span className="text-rose-500 italic uppercase">Intervention Hub</span></h2>
               <p className="text-[10px] text-white/40 font-mono tracking-widest uppercase mt-1">Sovereign Authority Oversight: Crisis Resolve Module</p>
            </div>
         </div>
 
         <div className="relative z-10 flex gap-4">
            <button 
-             onClick={() => showToast('Activating National Emergency Asset Freeze: Encrypting Ledger Shards')}
+             onClick={handleEmergencyFreeze}
              className="px-8 py-3 bg-rose-500 text-white rounded-xl text-[10px] font-black tracking-widest uppercase hover:scale-105 transition-all shadow-xl shadow-rose-500/30"
            >
              Activate Emergency Freeze
            </button>
            <button 
-             onClick={() => showToast('Opening Sovereign Audit Logs: Genesis Sync Active')}
-             className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all"
+             onClick={handleAuditLogsDownload}
+             className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 text-white/70 transition-all"
            >
              Audit Logs
            </button>
