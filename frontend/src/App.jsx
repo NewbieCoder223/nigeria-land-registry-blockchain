@@ -308,37 +308,31 @@ const Sidebar = ({ role, setRole, isSuperAdmin, isOpen, onClose }) => {
   }
 
   const getMenuItems = (userRole) => {
-    const commonItems = [{ name: 'Sovereign Hub', icon: LayoutDashboard, path: '/dashboard' }]
-    
     switch(userRole) {
       case 'GOVERNOR':
         return [
-          ...commonItems,
           { name: 'Command Center', icon: ShieldAlert, path: '/governor' },
           { name: 'National Ledger', icon: BookOpen, path: '/registry' },
           { name: 'Crisis Resolve', icon: Scale, path: '/crisis-resolve' },
         ]
       case 'SURVEYOR':
         return [
-          ...commonItems,
           { name: 'GIS Mapping', icon: MapIcon, path: '/surveyor' },
           { name: 'Calibrations', icon: MousePointer2, path: '/calib' },
         ]
       case 'VERIFIER':
         return [
-          ...commonItems,
           { name: 'Audit Portal', icon: ShieldCheck, path: '/verifier' },
           { name: 'NIN Database', icon: UserCircle, path: '/nin' },
         ]
       case 'REGISTRAR':
         return [
-          ...commonItems,
           { name: 'Registry Desk', icon: FileSignature, path: '/registrar' },
           { name: 'Stamp Deed', icon: PenTool, path: '/sign' },
         ]
       default: // LANDOWNER
         return [
-          ...commonItems,
+          { name: 'Sovereign Hub', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'Asset Registry', icon: MapIcon, path: '/register' },
           { name: 'Title Transfer', icon: ArrowRightLeft, path: '/transfer' },
           { name: 'Dispute Desk', icon: ShieldAlert, path: '/disputes' },
