@@ -241,8 +241,11 @@ const RegistrarDashboard = ({ showToast }) => {
                             <td className="px-4 py-4 font-mono text-white/40 whitespace-nowrap">#{deed.parcel_id}</td>
                             <td className="px-4 py-4 whitespace-nowrap">
                                <div className="space-y-1">
-                                  <p className="font-bold text-white uppercase italic">{deed.parcels?.owner_address?.slice(0,10) || '0x...'}</p>
-                                  <p className="text-[9px] text-white/20 uppercase tracking-widest">{deed.parcels?.area || 1250} SQM</p>
+                                  <p className="font-bold text-white font-mono uppercase italic">{
+                                    deed.owner_address ? `${deed.owner_address.slice(0,8)}...${deed.owner_address.slice(-4)}` : 
+                                    deed.parcels?.owner_address ? `${deed.parcels.owner_address.slice(0,8)}...${deed.parcels.owner_address.slice(-4)}` : '0x...'
+                                  }</p>
+                                  <p className="text-[9px] text-white/20 uppercase tracking-widest">{deed.area || deed.parcels?.area || 1250} SQM</p>
                                </div>
                             </td>
                             <td className="px-4 py-4 whitespace-nowrap">
