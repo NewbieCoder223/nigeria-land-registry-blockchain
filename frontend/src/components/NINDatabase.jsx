@@ -168,11 +168,11 @@ const NINDatabase = ({ showToast }) => {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-extrabold tracking-tight uppercase flex items-center gap-3 text-white">
+          <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-3 text-white">
              <UserCircle className="text-nigeria-green w-8 h-8" />
-             National <span className="text-nigeria-green uppercase font-black">Identity Interface</span>
+             National <span className="text-nigeria-green font-black">Identity Interface</span>
           </h2>
-          <p className="text-xs text-white/40 font-mono tracking-widest uppercase mt-1">Cross-Reference Sync with NIMC Database</p>
+          <p className="text-xs text-white/50 font-medium mt-1">Cross-Reference Sync with NIMC Database</p>
         </div>
         
         <div className="w-full md:w-auto relative group">
@@ -182,7 +182,7 @@ const NINDatabase = ({ showToast }) => {
              placeholder="Search by NIN, Name, Wallet, or Parcel ID..." 
              value={searchQuery}
              onChange={(e) => setSearchQuery(e.target.value)}
-             className="w-full md:w-96 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-xs text-white placeholder:text-white/30 focus:ring-1 focus:ring-nigeria-green focus:border-nigeria-green outline-none font-medium"
+             className="w-full md:w-96 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-xs text-white placeholder:text-white/30 focus:ring-1 focus:ring-nigeria-green focus:border-nigeria-green outline-none font-medium"
            />
         </div>
       </div>
@@ -192,18 +192,18 @@ const NINDatabase = ({ showToast }) => {
          <div className="glass-card border-white/5 p-6 bg-reg-black/40 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">
                <Database className="w-5 h-5 text-nigeria-green" />
-               <span className="text-xs font-bold tracking-widest uppercase text-white/80">Live NIMC Synchrony</span>
+               <span className="text-xs font-bold uppercase text-white/80">Live NIMC Synchrony</span>
             </div>
             <div className="space-y-4">
                <div>
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">Registered Citizen Profiles</label>
+                  <label className="text-xs font-semibold text-white/50 leading-none">Registered Citizen Profiles</label>
                   <p className="text-3xl font-extrabold text-white mt-1 leading-none font-mono">{totalRecords} Profiles</p>
                </div>
                <div className="flex gap-4">
                   <button 
                     onClick={handleRefreshNodes}
                     disabled={isRefreshing}
-                    className="px-6 py-3 bg-nigeria-green/10 text-nigeria-green border-0.5 border-nigeria-green/30 rounded-xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-nigeria-green hover:text-white transition-all disabled:opacity-50"
+                    className="px-5 py-2.5 bg-nigeria-green/10 text-nigeria-green border-0.5 border-nigeria-green/30 rounded-xl font-bold uppercase text-xs flex items-center gap-2 hover:bg-nigeria-green hover:text-white transition-all disabled:opacity-50"
                   >
                      {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
                      Refresh Identity Nodes
@@ -216,16 +216,16 @@ const NINDatabase = ({ showToast }) => {
          <div className="glass-card border-white/5 p-6 bg-reg-black/40 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">
                <Fingerprint className="w-5 h-5 text-nigeria-green" />
-               <span className="text-xs font-bold tracking-widest uppercase text-white/80">Identity Verification</span>
+               <span className="text-xs font-bold uppercase text-white/80">Identity Verification</span>
             </div>
             <div className="space-y-4">
                <div>
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">Verified Compliance Score</label>
+                  <label className="text-xs font-semibold text-white/50 leading-none">Verified Compliance Score</label>
                   <p className="text-3xl font-extrabold text-nigeria-green mt-1 leading-none font-mono">{complianceScore}% Pass Rate</p>
                </div>
                <div className="flex items-center gap-2">
                   <Lock className="w-3.5 h-3.5 text-white/40" />
-                  <span className="text-xs font-mono text-white/40 uppercase tracking-widest">{verifiedCount} Attested Identity Cards</span>
+                  <span className="text-xs text-white/50 font-medium">{verifiedCount} Attested Identity Cards</span>
                </div>
             </div>
          </div>
@@ -234,13 +234,13 @@ const NINDatabase = ({ showToast }) => {
          <div className="glass-card border-white/5 p-6 bg-red-500/5 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">
                <ShieldAlert className="w-5 h-5 text-red-500" />
-               <span className="text-xs font-bold tracking-widest uppercase text-red-500">Administrative Override</span>
+               <span className="text-xs font-bold uppercase text-red-500">Administrative Override</span>
             </div>
             <div className="space-y-4">
-               <p className="text-xs text-white/40 uppercase tracking-widest">Perform administrative identity clearances or manual overrides</p>
+               <p className="text-xs text-white/50 leading-relaxed font-medium">Perform administrative identity clearances or manual overrides</p>
                <button 
                  onClick={() => setIsOverrideModalOpen(true)}
-                 className="w-full py-3 bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500 hover:text-white transition-all rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                 className="w-full py-2.5 bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500 hover:text-white transition-all rounded-xl text-xs font-bold uppercase flex items-center justify-center gap-2"
                >
                  <KeyRound className="w-3.5 h-3.5" />
                  Manual Override
